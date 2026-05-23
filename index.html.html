@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السبحة الرقمية العالمية</title>
+    
+    <style>
+        :root {
+            --bg-main: #090d16;
+            --bg-card: #131c2e;
+            --bg-input: #1b263b;
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.2);
+            --accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .phone-wrapper {
+            background: var(--bg-card);
+            border-radius: 32px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 1px solid #202e4c;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* رأس الصفحة والأزرار السريعة */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
+
+        .icon-btn {
+            background: var(--bg-input);
+            border: none;
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .icon-btn:hover {
+            background: #243354;
+            color: var(--primary);
+        }
+
+        /* لوحة الإعدادات المخفية */
+        .settings-panel {
+            background: #1c2942;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #2e4166;
+            text-align: right;
+        }
+
+        .settings-panel.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #283a5e;
+        }
+
+        .setting-row:last-child { border: none; }
+
+        /* شاشة الهوية */
+        .profile-card {
+            background: linear-gradient(135deg, #16223f, #111a30);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #1e2d52;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: var(--bg-main);
+            border: 1px solid #233356;
+            padding: 10px 15px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .input-group button {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .input-group button:hover {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* منطقة العداد الكبيرة */
+        .counter-box {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .dhikr-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .main-number {
+            font-size: 6rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .user-total {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* زر النبض الفخم */
+        .click-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #10b981, #047857);
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: white;
+            border: 6px solid #131c2e;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4), 0 15px 30px rgba(4, 120, 87, 0.4);
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .click-circle:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 0 15px rgba(16, 185, 129, 0), 0 5px 10px rgba(4, 120, 87, 0.4);
+        }
+
+        /* لوحة الترتيب العالمي */
+        .leaderboard-box {
+            background: linear-gradient(180deg, #16223f, #111a30);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #1e2d52;
+            text-align: right;
+        }
+
+        .leaderboard-box h3 {
+            font-size: 1rem;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leader-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid #1e2d52;
+            border-radius: 8px;
+        }
+
+        .leader-row:last-child { border: none; }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rank-tag {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #233356;
+            color: var(--text-muted);
+        }
+
+        /* ميداليات المراكز الأولى */
+        .row-0 .rank-tag { background: #f59e0b; color: #000; }
+        .row-1 .rank-tag { background: #94a3b8; color: #000; }
+        .row-2 .rank-tag { background: #b45309; color: #fff; }
+
+        .player-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .player-score {
+            font-weight: 700;
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .current-user-row {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* أنيميشن */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* السويتش الجميل للإعدادات */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #233356; border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px;
+            background-color: white; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .danger-btn {
+            background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: bold;
+        }
+        .danger-btn:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+
+    <div class="phone-wrapper">
+        <!-- الرأس والتحكم السريع -->
+        <div class="header">
+            <button class="icon-btn" id="toggleSettingsBtn">⚙️</button>
+            <h1>السبحة الذكية</h1>
+            <button class="icon-btn" id="nextDhikrBtn">🔄</button>
+        </div>
+
+        <!-- لوحة الإعدادات المتطورة -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="setting-row">
+                <span>اهتزاز اللمس</span>
+                <label class="switch">
+                    <input type="checkbox" id="vibrateToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span>تصفير أرقامي بالكامل</span>
+                <button class="danger-btn" id="resetAllBtn">تصفير</button>
+            </div>
+        </div>
+
+        <!-- كارت الهوية وتغيير الاسم -->
+        <div class="profile-card">
+            <div class="input-group">
+                <input type="text" id="usernameInput" placeholder="اكتب اسمك المستعار..." maxlength="12">
+                <button id="saveNameBtn">حفظ</button>
+            </div>
+        </div>
+
+        <!-- شاشة الأرقام والعدادات -->
+        <div class="counter-box">
+            <div class="dhikr-title" id="dhikrText">سُبْحَانَ اللَّهِ</div>
+            <div class="main-number" id="counter">0</div>
+            <div class="user-total">مجموع تسبيحاتك اليوم: <span id="totalCounter" style="color:white; font-weight:bold;">0</span></div>
+        </div>
+
+        <!-- زر الضغط التفاعلي -->
+        <div class="click-circle" id="pressBtn">اضغط</div>
+
+        <!-- قائمة الصدارة العالمية لايف -->
+        <div class="leaderboard-box">
+            <h3>🏆 صدارة الذاكرين حول العالم</h3>
+            <div id="leaderboardList">
+                <div style="text-align:center; color: var(--text-muted); padding: 10px;">جاري الاتصال بالسيرفر العالمي...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- كود الربط السحابي -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // قاعدة البيانات الخاصة بمشروعك
+        const firebaseConfig = {
+            databaseURL: "https://tasbeeh-6f45a-default-rtdb.firebaseio.com/" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // مصفوفة الأذكار
+        const dhikrList = ["سُبْحَانَ اللَّهِ", "الْحَمْدُ لِلَّهِ", "لَا إِلَٰهَ إِلَّا اللَّهُ", "اللَّهُ أَكْبَرُ", "أَسْتَغْفِرُ اللَّهَ"];
+        let dhikrIndex = 0;
+
+        let myScore = parseInt(localStorage.getItem('global_tasbeeh_score')) || 0;
+        let myName = localStorage.getItem('global_tasbeeh_name') || "مسبح خير";
+        let myUserId = localStorage.getItem('global_tasbeeh_uid') || "u_" + Math.random().toString(36).substr(2, 9);
+        let isVibrateEnabled = true;
+
+        localStorage.setItem('global_tasbeeh_uid', myUserId);
+
+        const counterElement = document.getElementById('counter');
+        const totalCounterElement = document.getElementById('totalCounter');
+        const usernameInput = document.getElementById('usernameInput');
+        const dhikrText = document.getElementById('dhikrText');
+        const leaderboardList = document.getElementById('leaderboardList');
+        
+        // الأزرار
+        const pressBtn = document.getElementById('pressBtn');
+        const saveNameBtn = document.getElementById('saveNameBtn');
+        const nextDhikrBtn = document.getElementById('nextDhikrBtn');
+        const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const vibrateToggle = document.getElementById('vibrateToggle');
+        const resetAllBtn = document.getElementById('resetAllBtn');
+
+        // تجهيز البيانات الافتتاحية
+        counterElement.innerText = myScore;
+        totalCounterElement.innerText = myScore;
+        usernameInput.value = myName === "مسبح خير" ? "" : myName;
+
+        // تشغيل وإيقاف قائمة الإعدادات
+        toggleSettingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('show');
+        });
+
+        // تشغيل / قفل الاهتزاز
+        vibrateToggle.addEventListener('change', (e) => {
+            isVibrateEnabled = e.target.checked;
+        });
+
+        // زر التسبيح الرئيسي
+        pressBtn.addEventListener('click', () => {
+            myScore++;
+            counterElement.innerText = myScore;
+            totalCounterElement.innerText = myScore;
+            localStorage.setItem('global_tasbeeh_score', myScore);
+            
+            updateScoreInCloud();
+
+            if (isVibrateEnabled && navigator.vibrate) {
+                navigator.vibrate(20);
+            }
+        });
+
+        // تغيير الذكر
+        nextDhikrBtn.addEventListener('click', () => {
+            dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
+            dhikrText.innerText = dhikrList[dhikrIndex];
+        });
+
+        // حفظ الاسم
+        saveNameBtn.addEventListener('click', () => {
+            if(usernameInput.value.trim() !== "") {
+                myName = usernameInput.value.trim();
+                localStorage.setItem('global_tasbeeh_name', myName);
+                updateScoreInCloud();
+                alert("تم تحديث اسمك بنجاح في السيرفر!");
+            }
+        });
+
+        // تصفير البيانات
+        resetAllBtn.addEventListener('click', () => {
+            if(confirm("هل أنت متأكد من تصفير مجموعك الحالي من السيرفر بالكامل؟")) {
+                myScore = 0;
+                counterElement.innerText = 0;
+                totalCounterElement.innerText = 0;
+                localStorage.setItem('global_tasbeeh_score', 0);
+                updateScoreInCloud();
+                settingsPanel.classList.remove('show');
+            }
+        });
+
+        function updateScoreInCloud() {
+            set(ref(database, 'users/' + myUserId), {
+                username: myName,
+                score: myScore
+            });
+        }
+
+        // الاستماع الحي للوحة الصدارة (أعلى 5 مسبحين)
+        const usersRef = ref(database, 'users');
+        const topScoresQuery = query(usersRef, orderByChild('score'), limitToLast(5));
+
+        onValue(topScoresQuery, (snapshot) => {
+            let leaders = [];
+            snapshot.forEach((childSnapshot) => {
+                leaders.push({ id: childSnapshot.key, ...childSnapshot.val() });
+            });
+            
+            leaders.reverse();
+            leaderboardList.innerHTML = "";
+            
+            if(leaders.length === 0) {
+                leaderboardList.innerHTML = `<div style="text-align:center; color:var(--text-muted);">ابدأ التسبيح لتكون الأول عالمياً!</div>`;
+                return;
+            }
+
+            leaders.forEach((leader, index) => {
+                const isMe = leader.id === myUserId ? 'current-user-row' : '';
+                leaderboardList.innerHTML += `
+                    <div class="leader-row row-${index} ${isMe}">
+                        <div class="player-info">
+                            <div class="rank-tag">${index + 1}</div>
+                            <span class="player-name">${leader.username}</span>
+                        </div>
+                        <span class="player-score">${leader.score}</span>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
