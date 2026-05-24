@@ -798,6 +798,29 @@
                     </div>`;
             });
         });
-    </script>
+  <script>
+  // 1. تشغيل الـ Service Worker للأوفلاين
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('نظام الأوفلاين نشط وجاهز! 💾'))
+        .catch(err => console.log('خطأ في نظام الأوفلاين:', err));
+    });
+  }
+
+  // 2. كود ذكي لإظهار زرار التثبيت للمستخدم
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // منع المتصفح من إظهار التنبيه التلقائي البايخ
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // هنا هنظهر للمستخدم رسالة أو زرار شيك جوه الموقع (لو تحب)
+    // كمثال، هنخلي المساعد الـ AI يلمح للمستخدم إن التطبيق جاهز للتثبيت:
+    if (typeof showAIMessage === "function") {
+        showAIMessage("✨ يمكنك الآن تثبيت التطبيق على شاشة موبايلك وتشغيله بدون إنترنت! اضغط على خيارات المتصفح ثم (Add to Home screen) 📱");
+    }
+  });
+</script>  </script>
 </body>
 </html>
