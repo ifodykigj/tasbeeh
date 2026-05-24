@@ -359,7 +359,6 @@
         }
         .ai-companion-box.show { display: block; }
 
-        /* بنر التحديث السحري الـ PWA */
         .update-toast {
             position: fixed; bottom: 20px; left: 20px; right: 20px; 
             background: var(--accent); color: #000; padding: 15px; 
@@ -495,9 +494,11 @@
         let dailyGoal = parseInt(localStorage.getItem('cfg_goal')) || 0;
         let isGoalCelebrated = localStorage.getItem('cfg_goal_celebrated') === 'true'; 
         let amIFirstPlace = false;
-        let localSessionCount = 0;
+        
+        // الصلح رقم 1: جعل العداد المحلي يقرأ علطول الاسكور الكلي المتخزن عشان ميبدأش من صفر
+        let localSessionCount = myScore; 
 
-        let dbQuran; // IndexedDB للقرآن أوفلاين
+        let dbQuran;
 
         localStorage.setItem('global_tasbeeh_uid', myUserId);
 
@@ -537,9 +538,11 @@
         const goResumeBtn = document.getElementById('goResumeBtn');
         const downloadSurahBtn = document.getElementById('downloadSurahBtn');
 
-        let lastClickTime = 0; let speedWarningCount = 0; let aiTimeout;
+        // متغيرات منع حرق العداد وإشعار التسرع
+        let lastClickTime = 0; 
+        let speedWarningCount = 0; 
+        let aiTimeout;
 
-        // تهيئة قاعدة البيانات المحلية للأوفلاين (IndexedDB)
         const dbRequest = indexedDB.open("QuranOfflineDB", 1);
         dbRequest.onupgradeneeded = (e) => {
             let db = e.target.result;
@@ -549,7 +552,7 @@
         };
         dbRequest.onsuccess = (e) => { dbQuran = e.target.result; };
 
-        // تهيئة البيانات الأولية للعرض
+        // مزامنة الأرقام علطول في البداية
         counterElement.innerText = localSessionCount;
         totalCounterElement.innerText = myScore;
         usernameInput.value = myName === "مسبح خير" ? "" : myName;
@@ -590,13 +593,19 @@
                 });
                 usersArray.sort((a, b) => b.score - a.score);
                 leaderboardList.innerHTML = "";
+                
+                // الصلح رقم 3: كشف المركز الأول الحقيقي وعمل حفلة طرقعة!
+                let oldFirstPlaceState = amIFirstPlace;
                 amIFirstPlace = false;
 
                 usersArray.forEach((user, index) => {
                     const currentName = user.name || "مسبح مجهول";
                     const currentScore = user.score !== undefined ? user.score : 0;
                     const isMe = currentName === myName ? "current-user-row" : "";
-                    if (index === 0 && currentName === myName) amIFirstPlace = true;
+                    
+                    if (index === 0 && currentName === myName) {
+                        amIFirstPlace = true;
+                    }
 
                     leaderboardList.innerHTML += `
                         <div class="leader-row ${isMe} row-${index}">
@@ -608,17 +617,42 @@
                         </div>
                     `;
                 });
+
+                // لو لسه واصل المركز الأول دلوقتي حالا، ولعها احتفالات!
+                if (amIFirstPlace && !oldFirstPlaceState && myScore > 0) {
+                    confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
+                    showAIMessage("🏆 هنيئاً لك يا غالي! أنت الآن في المركز الأول على العالم في صدارة الذاكرين! ما شاء الله.");
+                }
+
             } else {
                 leaderboardList.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 5px; font-size:0.8rem;">لا يوجد مسبحين في الصدارة حالياً</div>`;
             }
         });
 
         function handleCounterClick() {
-            localSessionCount++; myScore++;
+            // الصلح رقم 2: فحص سرعة الضغط لمنع الحرق (Anti-spam)
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastClickTime;
+            lastClickTime = currentTime;
+
+            if (timeDiff < 150) { // لو بيضغط أسرع من 150 مللي ثانية
+                speedWarningCount++;
+                if (speedWarningCount > 4) { // لو كررها أكتر من 4 مرات
+                    showAIMessage("⚠️ مهلاً يا غالي، سبّح بتؤدة وطمأنينة لتتدبر الذكر.");
+                    speedWarningCount = 0;
+                    return; // إيقاف الضغطة وعدم احتسابها لحماية التدبر والعداد
+                }
+            } else {
+                speedWarningCount = 0; // تصفير العداد لو رجع يضغط طبيعي
+            }
+
+            localSessionCount++; 
+            myScore++;
             counterElement.innerText = localSessionCount;
             counterElement.classList.add('pop-effect');
             setTimeout(() => counterElement.classList.remove('pop-effect'), 100);
-            spawnFloatingPlus(); playClickSound();
+            spawnFloatingPlus(); 
+            playClickSound();
 
             if (isVibrateEnabled && navigator.vibrate) navigator.vibrate(15);
 
@@ -637,7 +671,9 @@
         nextDhikrBtn.addEventListener('click', () => {
             dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
             dhikrText.innerText = dhikrList[dhikrIndex];
-            localSessionCount = 0; counterElement.innerText = localSessionCount;
+            // عند قلب الذكر الجديد تصفير العداد المكتوب فقط، مع الحفاظ على التوتال ثابت
+            localSessionCount = 0; 
+            counterElement.innerText = localSessionCount;
             playClickSound();
         });
 
@@ -693,13 +729,11 @@
                     surahSelect.innerHTML += `<option value="${surah.number}">${surah.number}. ${surah.name}</option>`;
                 });
             } catch (err) {
-                // محاولة جلبها لو كنا أوفلاين
                 surahSelect.innerHTML = '<option value="">📖 تصفح السور المحملة أوفلاين...</option>';
                 getOfflineSurahsList();
             }
         }
 
-        // تحديث حالة زرار التحميل (أيقونة صح أو تحميل)
         function updateDownloadButtonState(surahNum) {
             if (!dbQuran || !surahNum) { downloadSurahBtn.disabled = true; return; }
             downloadSurahBtn.disabled = false;
@@ -710,47 +744,34 @@
                 if (request.result) {
                     downloadSurahBtn.innerText = "✅";
                     downloadSurahBtn.classList.add('downloaded');
-                    downloadSurahBtn.title = "هذه السورة محفوظة على جهازك للأوفلاين";
                 } else {
                     downloadSurahBtn.innerText = "📥";
                     downloadSurahBtn.classList.remove('downloaded');
-                    downloadSurahBtn.title = "تحميل السورة للاستماع بدون إنترنت";
                 }
             };
         }
 
-        // كود تحميل السورة وحفظها أوفلاين
         downloadSurahBtn.addEventListener('click', async () => {
             const surahNum = surahSelect.value;
             if (!surahNum) return;
-
-            downloadSurahBtn.innerText = "⏳";
-            downloadSurahBtn.disabled = true;
-
+            downloadSurahBtn.innerText = "⏳"; downloadSurahBtn.disabled = true;
             try {
-                // 1. تحميل النص
                 const textRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`);
                 const textData = await textRes.json();
-
-                // 2. تحميل الصوت وتخزينه في كاش المتصفح
                 const formattedNumber = String(surahNum).padStart(3, '0');
                 const audioUrl = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
-                
                 const cache = await caches.open('quran-audio-cache');
                 await cache.add(audioUrl);
-
-                // 3. حفظ البيانات في IndexedDB
                 let transaction = dbQuran.transaction(["surahs"], "readwrite");
                 let store = transaction.objectStore("surahs");
                 store.put({ id: String(surahNum), data: textData.data });
-
                 transaction.oncomplete = () => {
                     confetti({ particleCount: 50, spread: 40 });
                     updateDownloadButtonState(surahNum);
-                    alert(`تم تحميل سورة ${textData.data.name} بنجاح! يمكنك الآن تصفحها وسماعها بدون إنترنت تماماً.`);
+                    alert(`تم تحميل سورة ${textData.data.name} بنجاح للأوفلاين!`);
                 };
             } catch (err) {
-                alert("حدث خطأ في التحميل، تأكد من جودة الإنترنت وحاول مجدداً.");
+                alert("حدث خطأ في التحميل، جرب مجدداً.");
                 updateDownloadButtonState(surahNum);
             }
         });
@@ -759,22 +780,16 @@
             surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بنظام الحماية الحية...";
             quranAudioPlayer.src = "";
             updateDownloadButtonState(surahNum);
-
             const formattedNumber = String(surahNum).padStart(3, '0');
             const audioUrl = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
 
-            // محاولة التحميل من الأوفلاين أولاً
             if (dbQuran) {
                 let transaction = dbQuran.transaction(["surahs"], "readonly");
-                let store = transaction.objectStore("surahs");
+                let store = transaction.objectStore(["surahs"]);
                 let request = store.get(String(surahNum));
                 request.onsuccess = () => {
-                    if (request.result) {
-                        renderSurahHTML(request.result.data, surahNum, targetAyah, audioUrl, true);
-                    } else {
-                        // لو مش متخزنة أوفلاين، هاتها من السيرفر عادي
-                        fetchFromNetwork();
-                    }
+                    if (request.result) renderSurahHTML(request.result.data, surahNum, targetAyah, audioUrl, true);
+                    else fetchFromNetwork();
                 };
             } else { fetchFromNetwork(); }
 
@@ -784,7 +799,7 @@
                     const textData = await textRes.json();
                     renderSurahHTML(textData.data, surahNum, targetAyah, audioUrl, false);
                 } catch (err) {
-                    surahTextBox.innerHTML = "❌ عذراً، هذه السورة غير محملة أوفلاين. تحتاج اتصال بالإنترنت لعرضها أول مرة.";
+                    surahTextBox.innerHTML = "❌ عذراً، هذه السورة غير محملة أوفلاين. تحتاج إنترنت لأول مرة.";
                 }
             }
         }
@@ -794,7 +809,6 @@
             if (surahNum != 1 && surahNum != 9) {
                 htmlContent += `<div style="font-family:var(--quran-font); font-size:1.8rem; color:#b45309; text-align:center; margin-bottom:20px; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
             }
-
             data.ayahs.forEach(ayah => {
                 let text = ayah.text;
                 if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
@@ -802,29 +816,25 @@
                 }
                 htmlContent += `<div class="verse-row" data-ayah="${ayah.numberInSurah}">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
             });
-            
             surahTextBox.innerHTML = htmlContent;
             quranAudioPlayer.src = audioUrl;
-            audioStatusText.innerText = `🔊 سورة ${data.name} ${isOffline ? '(أوفلاين 💾)' : ''} - الشيخ مشاري العفاسي`;
-            
+            audioStatusText.innerText = `🔊 سورة ${data.name} ${isOffline ? '(أوفلاين 💾)' : ''} - مشاري العفاسي`;
             localStorage.setItem('last_surah_id', surahNum);
             localStorage.setItem('last_surah_name', data.name);
             localStorage.setItem('last_ayah_num', targetAyah);
-
             setTimeout(() => {
                 if (targetAyah > 1) {
                     const targetRow = surahTextBox.querySelector(`[data-ayah="${targetAyah}"]`);
                     if (targetRow) surahTextBox.scrollTop = targetRow.offsetTop - 40;
                 } else { surahTextBox.scrollTop = 0; }
             }, 200);
-
             checkResumeStatus();
         }
 
         function getOfflineSurahsList() {
             if (!dbQuran) return;
             let transaction = dbQuran.transaction(["surahs"], "readonly");
-            let store = transaction.objectStore("surahs");
+            let store = transaction.objectStore(["surahs"]);
             store.getAll().onsuccess = (e) => {
                 let list = e.target.result;
                 surahSelect.innerHTML = '<option value="">📖 تصفح السور المحملة (أوفلاين) 💾</option>';
@@ -914,39 +924,23 @@
       let newWorker;
       const updateToast = document.getElementById('updateToast');
       const updateBtn = document.getElementById('updateBtn');
-
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('نظام الأوفلاين نشط وجاهز! 💾');
-
-            // فحص وجود نسخة جديدة على السيرفر
             reg.addEventListener('updatefound', () => {
               newWorker = reg.installing;
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // إظهار بنر التحديث للمستخدم
                   updateToast.style.display = 'flex';
                 }
               });
             });
           });
         });
-
-        // عند الضغط على زر التحديث، نأمر الـ Service Worker بالتحديث فوراً
-        updateBtn.addEventListener('click', () => {
-            if (newWorker) {
-                newWorker.postMessage({ action: 'skipWaiting' });
-            }
-        });
-
-        // عمل إعادة تحميل تلقائي للموقع بعد تفعيل التحديث
+        updateBtn.addEventListener('click', () => { if (newWorker) newWorker.postMessage({ action: 'skipWaiting' }); });
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
-                window.location.reload();
-                refreshing = true;
-            }
+            if (!refreshing) { window.location.reload(); refreshing = true; }
         });
       }
     </script>
