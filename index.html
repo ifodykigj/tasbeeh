@@ -525,19 +525,21 @@
             mainTitle.innerText = "مصحف التلاوة"; nextDhikrBtn.style.visibility = "hidden";
             settingsPanel.classList.remove('show');
             loadSurahList();
-            checkResumeStatus(); // فحص علامة الوقوف تلقائياً
+            checkResumeStatus(); 
         });
 
-        // فحص علامة الوقوف المخزنة تلقائياً
+        // فحص علامة الوقوف المطورة (سورة + آية) تلقائياً
         function checkResumeStatus() {
             const id = localStorage.getItem('last_surah_id');
             const name = localStorage.getItem('last_surah_name');
+            const ayahNum = localStorage.getItem('last_ayah_num') || "1";
+            
             if (id) {
                 resumeBox.style.display = "flex";
-                resumeText.innerText = `📖 كنت تقرأ سورة ${name}`;
+                resumeText.innerText = `📖 كنت تقرأ: سورة ${name} - الآية (${ayahNum})`;
                 goResumeBtn.onclick = () => {
                     surahSelect.value = id;
-                    fetchSurahData(id);
+                    fetchSurahData(id, parseInt(ayahNum));
                 };
             } else {
                 resumeBox.style.display = "none";
@@ -560,7 +562,7 @@
         }
 
         // جلب الآيات وعرضها بكروت منظمة وخالية من المربعات
-        async function fetchSurahData(surahNum) {
+        async function fetchSurahData(surahNum, targetAyah = 1) {
             surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بالرسم العثماني المحمي ونغمة التلاوة الحية...";
             quranAudioPlayer.src = "";
 
@@ -578,7 +580,8 @@
                     if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
                         text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ", "");
                     }
-                    htmlContent += `<div class="verse-row">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
+                    // إضافة داتا كلاس وسورس لسهولة تتبع رقم الآية عند الـ Scroll
+                    htmlContent += `<div class="verse-row" data-ayah="${ayah.numberInSurah}">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
                 });
                 
                 surahTextBox.innerHTML = htmlContent;
@@ -588,19 +591,53 @@
                 quranAudioPlayer.src = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
                 audioStatusText.innerText = `🔊 سورة ${textData.data.name} - الشيخ مشاري العفاسي`;
                 
-                // حفظ الموقف أوتوماتيكياً بمجرد الاختيار والقراءة
+                // الحفظ المبدئي
                 localStorage.setItem('last_surah_id', surahNum);
                 localStorage.setItem('last_surah_name', textData.data.name);
-                checkResumeStatus();
+                localStorage.setItem('last_ayah_num', targetAyah);
 
-                surahTextBox.scrollTop = 0;
+                // لو المستخدم راجع لآية معينة، يتم تمرير الشاشة إليها فوراً وبسلاسة
+                setTimeout(() => {
+                    if (targetAyah > 1) {
+                        const targetRow = surahTextBox.querySelector(`[data-ayah="${targetAyah}"]`);
+                        if (targetRow) {
+                            surahTextBox.scrollTop = targetRow.offsetTop - 40;
+                        }
+                    } else {
+                        surahTextBox.scrollTop = 0;
+                    }
+                }, 200);
+
+                checkResumeStatus();
             } catch (err) {
                 surahTextBox.innerHTML = "❌ عذراً، حدث خطأ أثناء تحميل السورة. تأكد من جودة اتصال الإنترنت.";
             }
         }
 
+        // نظام ذكي لتتبع الـ Scroll وحفظ رقم الآية التي يقرأها المستخدم حالياً تلقائياً
+        surahTextBox.addEventListener('scroll', () => {
+            const rows = surahTextBox.querySelectorAll('.verse-row');
+            const boxTop = surahTextBox.getBoundingClientRect().top;
+            
+            for (let row of rows) {
+                const rowRect = row.getBoundingClientRect();
+                // إذا كان الصف يمر حالياً من أعلى الصندوق الرؤية، نعتبره هو الآية الحالية
+                if (rowRect.top >= boxTop - 20 && rowRect.top <= boxTop + 100) {
+                    const currentAyahNum = row.getAttribute('data-ayah');
+                    const savedAyah = localStorage.getItem('last_ayah_num');
+                    if (currentAyahNum && currentAyahNum !== savedAyah) {
+                        localStorage.setItem('last_ayah_num', currentAyahNum);
+                        // تحديث نص الكارت لايف من غير ما نضايق القارئ
+                        const name = localStorage.getItem('last_surah_name');
+                        resumeText.innerText = `📖 كنت تقرأ: سورة ${name} - الآية (${currentAyahNum})`;
+                    }
+                    break;
+                }
+            }
+        });
+
         surahSelect.addEventListener('change', (e) => {
-            if (e.target.value) fetchSurahData(e.target.value);
+            if (e.target.value) fetchSurahData(e.target.value, 1);
         });
 
         // --- كود نظام السبحة والإعدادات والستريك والصدارة (النسخة الأصلية كاملة) ---
@@ -657,7 +694,7 @@
         applyTheme(currentTheme); handleStreakSystem(); updateProgressRing();
 
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => showAIMessage("مرحباً بك يا غالي.. تم دمج كافة الخصائص والإعدادات بنجاح تام 🌸"), 1200);
+            setTimeout(() => showAIMessage("مرحباً بك يا غالي.. تم دمج ميزة حفظ الآية الذكية بنجاح تام 🌸"), 1200);
         });
 
         counterElement.innerText = myScore; totalCounterElement.innerText = myScore;
