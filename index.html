@@ -10,7 +10,6 @@
     <meta name="author" content="خالد مؤمن">
     
     <link rel="manifest" href="./manifest.json">
-    
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -111,9 +110,7 @@
             backdrop-filter: var(--glass-blur);
         }
 
-        .icon-btn:hover {
-            color: var(--primary);
-        }
+        .icon-btn:hover { color: var(--primary); }
 
         .settings-panel {
             background: var(--bg-input);
@@ -175,10 +172,7 @@
             font-size: 0.9rem;
         }
 
-        .tab-btn.active {
-            background: var(--primary);
-            color: #000;
-        }
+        .tab-btn.active { background: var(--primary); color: #000; }
 
         .view-section { display: none; flex-direction: column; flex-grow: 1; }
         .view-section.active { display: flex; }
@@ -289,18 +283,28 @@
         
         .quran-header-box {
             background: var(--bg-input); padding: 12px; border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;
         }
         
+        .quran-select-wrapper { display: flex; gap: 8px; width: 100%; }
+
         .quran-select {
-            width: 100%; background: var(--bg-main); color: var(--text-main);
+            flex: 1; background: var(--bg-main); color: var(--text-main);
             border: 1px solid var(--primary); padding: 12px; border-radius: 12px;
             outline: none; font-size: 1rem; font-weight: bold;
         }
 
+        .download-btn {
+            background: var(--bg-main); color: var(--accent); border: 1px solid var(--accent);
+            padding: 0 15px; border-radius: 12px; cursor: pointer; font-weight: bold;
+            display: flex; justify-content: center; align-items: center; font-size: 1.1rem;
+        }
+        .download-btn.downloaded { color: var(--primary); border-color: var(--primary); }
+        .download-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .resume-card {
             background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent);
-            padding: 10px 15px; border-radius: 12px; margin-top: 10px;
+            padding: 10px 15px; border-radius: 12px; margin-top: 5px;
             display: none; align-items: center; justify-content: space-between;
             animation: slideDown 0.3s ease;
         }
@@ -355,6 +359,17 @@
         }
         .ai-companion-box.show { display: block; }
 
+        /* بنر التحديث السحري الـ PWA */
+        .update-toast {
+            position: fixed; bottom: 20px; left: 20px; right: 20px; 
+            background: var(--accent); color: #000; padding: 15px; 
+            border-radius: 16px; font-weight: bold; display: none; 
+            justify-content: space-between; align-items: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999;
+            animation: slideDown 0.3s ease reverse;
+        }
+        .update-toast button { background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(0.8); } }
         
@@ -368,6 +383,11 @@
     </style>
 </head>
 <body>
+
+    <div class="update-toast" id="updateToast">
+        <span>✨ متوفر تحديث فخم جديد للتطبيق!</span>
+        <button id="updateBtn">تحديث الآن 🔄</button>
+    </div>
 
     <div class="phone-wrapper">
         <div class="header">
@@ -421,9 +441,12 @@
         <div class="view-section" id="quranView">
             <div class="quran-container">
                 <div class="quran-header-box">
-                    <select class="quran-select" id="surahSelect">
-                        <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
-                    </select>
+                    <div class="quran-select-wrapper">
+                        <select class="quran-select" id="surahSelect">
+                            <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
+                        </select>
+                        <button class="download-btn" id="downloadSurahBtn" title="تحميل السورة للاستماع بدون إنترنت" disabled>📥</button>
+                    </div>
                     
                     <div class="resume-card" id="resumeBox">
                         <span id="resumeText" style="font-size:0.85rem; color:var(--accent); font-weight:bold;"></span>
@@ -474,6 +497,8 @@
         let amIFirstPlace = false;
         let localSessionCount = 0;
 
+        let dbQuran; // IndexedDB للقرآن أوفلاين
+
         localStorage.setItem('global_tasbeeh_uid', myUserId);
 
         const counterElement = document.getElementById('counter');
@@ -510,8 +535,19 @@
         const resumeBox = document.getElementById('resumeBox');
         const resumeText = document.getElementById('resumeText');
         const goResumeBtn = document.getElementById('goResumeBtn');
+        const downloadSurahBtn = document.getElementById('downloadSurahBtn');
 
-        let lastClickTime = 0; let speedWarningCount = 0; let aiTimeout; let autoCloseSettingsTimeout;
+        let lastClickTime = 0; let speedWarningCount = 0; let aiTimeout;
+
+        // تهيئة قاعدة البيانات المحلية للأوفلاين (IndexedDB)
+        const dbRequest = indexedDB.open("QuranOfflineDB", 1);
+        dbRequest.onupgradeneeded = (e) => {
+            let db = e.target.result;
+            if (!db.objectStoreNames.contains("surahs")) {
+                db.createObjectStore("surahs", { keyPath: "id" });
+            }
+        };
+        dbRequest.onsuccess = (e) => { dbQuran = e.target.result; };
 
         // تهيئة البيانات الأولية للعرض
         counterElement.innerText = localSessionCount;
@@ -533,7 +569,6 @@
             checkResumeStatus(); 
         });
 
-        // --- نظام التحديث في قاعدة البيانات (Firebase Live) ---
         function updateFirebase() {
             set(ref(database, 'users/' + myUserId), {
                 name: myName,
@@ -545,33 +580,23 @@
             updateProgressRing();
         }
 
-        // --- جلب لوحة الصدارة الحية من الفايربيز وترتيبها تصاعدياً/تنازلياً صح ---
-     // --- جلب لوحة الصدارة الحية من الفايربيز وترتيبها صح ---
         const leaderboardQuery = query(ref(database, 'users'), orderByChild('score'), limitToLast(5));
         onValue(leaderboardQuery, (snapshot) => {
             if (snapshot.exists()) {
                 let usersArray = [];
                 snapshot.forEach((childSnapshot) => {
-                    // هنا الصلح: بنجيب الداتا الفعليه لكل مستخدم
                     let userData = childSnapshot.val();
                     usersArray.push(userData);
                 });
-                
-                // ترتيب تنازلي (الأعلى فوق)
                 usersArray.sort((a, b) => b.score - a.score);
-                
                 leaderboardList.innerHTML = "";
                 amIFirstPlace = false;
 
                 usersArray.forEach((user, index) => {
-                    // حماية في حالة لو الاسم مش مكتوب أو فاضي
                     const currentName = user.name || "مسبح مجهول";
                     const currentScore = user.score !== undefined ? user.score : 0;
-                    
                     const isMe = currentName === myName ? "current-user-row" : "";
-                    if (index === 0 && currentName === myName) {
-                        amIFirstPlace = true;
-                    }
+                    if (index === 0 && currentName === myName) amIFirstPlace = true;
 
                     leaderboardList.innerHTML += `
                         <div class="leader-row ${isMe} row-${index}">
@@ -587,48 +612,35 @@
                 leaderboardList.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 5px; font-size:0.8rem;">لا يوجد مسبحين في الصدارة حالياً</div>`;
             }
         });
-        // --- تشغيل عداد السبحة عند الضغط ---
+
         function handleCounterClick() {
-            localSessionCount++;
-            myScore++;
+            localSessionCount++; myScore++;
             counterElement.innerText = localSessionCount;
-            
-            // تأثير التكبير عند الضغط
             counterElement.classList.add('pop-effect');
             setTimeout(() => counterElement.classList.remove('pop-effect'), 100);
+            spawnFloatingPlus(); playClickSound();
 
-            spawnFloatingPlus();
-            playClickSound();
+            if (isVibrateEnabled && navigator.vibrate) navigator.vibrate(15);
 
-            if (isVibrateEnabled && navigator.vibrate) {
-                navigator.vibrate(15);
-            }
-
-            // فحص الهدف الذكي
             if (dailyGoal > 0 && myScore >= dailyGoal && !isGoalCelebrated) {
                 isGoalCelebrated = true;
                 localStorage.setItem('cfg_goal_celebrated', 'true');
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 showAIMessage("🎉 ما شاء الله! حققت هدفك اليومي للتسبيح بنجاح! زادك الله نوراً.");
             }
-
-            // تحديث دوري للفايربيز
             updateFirebase();
         }
 
         pressBtn.addEventListener('click', handleCounterClick);
         containerArea.addEventListener('click', handleCounterClick);
 
-        // تغيير الذكر الحالي
         nextDhikrBtn.addEventListener('click', () => {
             dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
             dhikrText.innerText = dhikrList[dhikrIndex];
-            localSessionCount = 0;
-            counterElement.innerText = localSessionCount;
+            localSessionCount = 0; counterElement.innerText = localSessionCount;
             playClickSound();
         });
 
-        // حفظ الاسم المستعار
         saveNameBtn.addEventListener('click', () => {
             const typedName = usernameInput.value.trim();
             if (typedName) {
@@ -639,49 +651,23 @@
             }
         });
 
-        // فتح وإغلاق الإعدادات
-        toggleSettingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.toggle('show');
-        });
-
-        // التحكم في التوجيهات
-        vibrateToggle.addEventListener('change', (e) => {
-            isVibrateEnabled = e.target.checked;
-            localStorage.setItem('cfg_vibrate', isVibrateEnabled);
-        });
-
-        soundToggle.addEventListener('change', (e) => {
-            isSoundEnabled = e.target.checked;
-            localStorage.setItem('cfg_sound', isSoundEnabled);
-        });
-
+        toggleSettingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('show'));
+        vibrateToggle.addEventListener('change', (e) => localStorage.setItem('cfg_vibrate', e.target.checked));
+        soundToggle.addEventListener('change', (e) => localStorage.setItem('cfg_sound', e.target.checked));
         aiToggle.addEventListener('change', (e) => {
-            isAIEnabled = e.target.checked;
-            localStorage.setItem('cfg_ai', isAIEnabled);
-            if (!isAIEnabled) aiCompanionMsg.classList.remove('show');
+            localStorage.setItem('cfg_ai', e.target.checked);
+            if (!e.target.checked) aiCompanionMsg.classList.remove('show');
         });
-
-        themeSelect.addEventListener('change', (e) => {
-            currentTheme = e.target.value;
-            localStorage.setItem('cfg_theme', currentTheme);
-            applyTheme(currentTheme);
-        });
-
+        themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
         goalInput.addEventListener('input', (e) => {
-            dailyGoal = parseInt(e.target.value) || 0;
-            localStorage.setItem('cfg_goal', dailyGoal);
-            isGoalCelebrated = false;
-            localStorage.setItem('cfg_goal_celebrated', 'false');
+            dailyGoal = parseInt(e.target.value) || 0; localStorage.setItem('cfg_goal', dailyGoal);
+            isGoalCelebrated = false; localStorage.setItem('cfg_goal_celebrated', 'false');
             updateProgressRing();
         });
-
         resetAllBtn.addEventListener('click', () => {
             if (confirm("هل أنت متأكد من تصفير جميع أرقامك؟")) {
-                myScore = 0;
-                localSessionCount = 0;
-                counterElement.innerText = 0;
-                isGoalCelebrated = false;
-                localStorage.setItem('cfg_goal_celebrated', 'false');
+                myScore = 0; localSessionCount = 0; counterElement.innerText = 0;
+                isGoalCelebrated = false; localStorage.setItem('cfg_goal_celebrated', 'false');
                 updateFirebase();
             }
         });
@@ -690,17 +676,11 @@
             const id = localStorage.getItem('last_surah_id');
             const name = localStorage.getItem('last_surah_name');
             const ayahNum = localStorage.getItem('last_ayah_num') || "1";
-            
             if (id) {
                 resumeBox.style.display = "flex";
                 resumeText.innerText = `📖 كنت تقرأ: سورة ${name} - الآية (${ayahNum})`;
-                goResumeBtn.onclick = () => {
-                    surahSelect.value = id;
-                    fetchSurahData(id, parseInt(ayahNum));
-                };
-            } else {
-                resumeBox.style.display = "none";
-            }
+                goResumeBtn.onclick = () => { surahSelect.value = id; fetchSurahData(id, parseInt(ayahNum)); };
+            } else { resumeBox.style.display = "none"; }
         }
 
         async function loadSurahList() {
@@ -713,62 +693,150 @@
                     surahSelect.innerHTML += `<option value="${surah.number}">${surah.number}. ${surah.name}</option>`;
                 });
             } catch (err) {
-                surahSelect.innerHTML = '<option value="">❌ فشل الاتصال بالسيرفر، أعد المحاولة</option>';
+                // محاولة جلبها لو كنا أوفلاين
+                surahSelect.innerHTML = '<option value="">📖 تصفح السور المحملة أوفلاين...</option>';
+                getOfflineSurahsList();
             }
         }
 
-        async function fetchSurahData(surahNum, targetAyah = 1) {
-            surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بالرسم العثماني المحمي ونغمة التلاوة الحية...";
-            quranAudioPlayer.src = "";
+        // تحديث حالة زرار التحميل (أيقونة صح أو تحميل)
+        function updateDownloadButtonState(surahNum) {
+            if (!dbQuran || !surahNum) { downloadSurahBtn.disabled = true; return; }
+            downloadSurahBtn.disabled = false;
+            let transaction = dbQuran.transaction(["surahs"], "readonly");
+            let store = transaction.objectStore(["surahs"]);
+            let request = store.get(String(surahNum));
+            request.onsuccess = () => {
+                if (request.result) {
+                    downloadSurahBtn.innerText = "✅";
+                    downloadSurahBtn.classList.add('downloaded');
+                    downloadSurahBtn.title = "هذه السورة محفوظة على جهازك للأوفلاين";
+                } else {
+                    downloadSurahBtn.innerText = "📥";
+                    downloadSurahBtn.classList.remove('downloaded');
+                    downloadSurahBtn.title = "تحميل السورة للاستماع بدون إنترنت";
+                }
+            };
+        }
+
+        // كود تحميل السورة وحفظها أوفلاين
+        downloadSurahBtn.addEventListener('click', async () => {
+            const surahNum = surahSelect.value;
+            if (!surahNum) return;
+
+            downloadSurahBtn.innerText = "⏳";
+            downloadSurahBtn.disabled = true;
 
             try {
+                // 1. تحميل النص
                 const textRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`);
                 const textData = await textRes.json();
-                
-                let htmlContent = "";
-                if (surahNum != 1 && surahNum != 9) {
-                    htmlContent += `<div style="font-family:var(--quran-font); font-size:1.8rem; color:#b45309; text-align:center; margin-bottom:20px; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
-                }
 
-                textData.data.ayahs.forEach(ayah => {
-                    let text = ayah.text;
-                    if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
-                        text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ", "");
-                    }
-                    htmlContent += `<div class="verse-row" data-ayah="${ayah.numberInSurah}">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
-                });
-                
-                surahTextBox.innerHTML = htmlContent;
-
+                // 2. تحميل الصوت وتخزينه في كاش المتصفح
                 const formattedNumber = String(surahNum).padStart(3, '0');
-                quranAudioPlayer.src = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
-                audioStatusText.innerText = `🔊 سورة ${textData.data.name} - الشيخ مشاري العفاسي`;
+                const audioUrl = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
                 
-                localStorage.setItem('last_surah_id', surahNum);
-                localStorage.setItem('last_surah_name', textData.data.name);
-                localStorage.setItem('last_ayah_num', targetAyah);
+                const cache = await caches.open('quran-audio-cache');
+                await cache.add(audioUrl);
 
-                setTimeout(() => {
-                    if (targetAyah > 1) {
-                        const targetRow = surahTextBox.querySelector(`[data-ayah="${targetAyah}"]`);
-                        if (targetRow) {
-                            surahTextBox.scrollTop = targetRow.offsetTop - 40;
-                        }
-                    } else {
-                        surahTextBox.scrollTop = 0;
-                    }
-                }, 200);
+                // 3. حفظ البيانات في IndexedDB
+                let transaction = dbQuran.transaction(["surahs"], "readwrite");
+                let store = transaction.objectStore("surahs");
+                store.put({ id: String(surahNum), data: textData.data });
 
-                checkResumeStatus();
+                transaction.oncomplete = () => {
+                    confetti({ particleCount: 50, spread: 40 });
+                    updateDownloadButtonState(surahNum);
+                    alert(`تم تحميل سورة ${textData.data.name} بنجاح! يمكنك الآن تصفحها وسماعها بدون إنترنت تماماً.`);
+                };
             } catch (err) {
-                surahTextBox.innerHTML = "❌ عذراً، حدث خطأ أثناء تحميل السورة. تأكد من جودة اتصال الإنترنت.";
+                alert("حدث خطأ في التحميل، تأكد من جودة الإنترنت وحاول مجدداً.");
+                updateDownloadButtonState(surahNum);
             }
+        });
+
+        async function fetchSurahData(surahNum, targetAyah = 1) {
+            surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بنظام الحماية الحية...";
+            quranAudioPlayer.src = "";
+            updateDownloadButtonState(surahNum);
+
+            const formattedNumber = String(surahNum).padStart(3, '0');
+            const audioUrl = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
+
+            // محاولة التحميل من الأوفلاين أولاً
+            if (dbQuran) {
+                let transaction = dbQuran.transaction(["surahs"], "readonly");
+                let store = transaction.objectStore("surahs");
+                let request = store.get(String(surahNum));
+                request.onsuccess = () => {
+                    if (request.result) {
+                        renderSurahHTML(request.result.data, surahNum, targetAyah, audioUrl, true);
+                    } else {
+                        // لو مش متخزنة أوفلاين، هاتها من السيرفر عادي
+                        fetchFromNetwork();
+                    }
+                };
+            } else { fetchFromNetwork(); }
+
+            async function fetchFromNetwork() {
+                try {
+                    const textRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`);
+                    const textData = await textRes.json();
+                    renderSurahHTML(textData.data, surahNum, targetAyah, audioUrl, false);
+                } catch (err) {
+                    surahTextBox.innerHTML = "❌ عذراً، هذه السورة غير محملة أوفلاين. تحتاج اتصال بالإنترنت لعرضها أول مرة.";
+                }
+            }
+        }
+
+        function renderSurahHTML(data, surahNum, targetAyah, audioUrl, isOffline) {
+            let htmlContent = "";
+            if (surahNum != 1 && surahNum != 9) {
+                htmlContent += `<div style="font-family:var(--quran-font); font-size:1.8rem; color:#b45309; text-align:center; margin-bottom:20px; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+            }
+
+            data.ayahs.forEach(ayah => {
+                let text = ayah.text;
+                if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
+                    text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ", "");
+                }
+                htmlContent += `<div class="verse-row" data-ayah="${ayah.numberInSurah}">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
+            });
+            
+            surahTextBox.innerHTML = htmlContent;
+            quranAudioPlayer.src = audioUrl;
+            audioStatusText.innerText = `🔊 سورة ${data.name} ${isOffline ? '(أوفلاين 💾)' : ''} - الشيخ مشاري العفاسي`;
+            
+            localStorage.setItem('last_surah_id', surahNum);
+            localStorage.setItem('last_surah_name', data.name);
+            localStorage.setItem('last_ayah_num', targetAyah);
+
+            setTimeout(() => {
+                if (targetAyah > 1) {
+                    const targetRow = surahTextBox.querySelector(`[data-ayah="${targetAyah}"]`);
+                    if (targetRow) surahTextBox.scrollTop = targetRow.offsetTop - 40;
+                } else { surahTextBox.scrollTop = 0; }
+            }, 200);
+
+            checkResumeStatus();
+        }
+
+        function getOfflineSurahsList() {
+            if (!dbQuran) return;
+            let transaction = dbQuran.transaction(["surahs"], "readonly");
+            let store = transaction.objectStore("surahs");
+            store.getAll().onsuccess = (e) => {
+                let list = e.target.result;
+                surahSelect.innerHTML = '<option value="">📖 تصفح السور المحملة (أوفلاين) 💾</option>';
+                list.forEach(surah => {
+                    surahSelect.innerHTML += `<option value="${surah.id}">${surah.id}. ${surah.data.name} 💾</option>`;
+                });
+            };
         }
 
         surahTextBox.addEventListener('scroll', () => {
             const rows = surahTextBox.querySelectorAll('.verse-row');
             const boxTop = surahTextBox.getBoundingClientRect().top;
-            
             for (let row of rows) {
                 const rowRect = row.getBoundingClientRect();
                 if (rowRect.top >= boxTop - 20 && rowRect.top <= boxTop + 100) {
@@ -828,6 +896,7 @@
             document.body.classList.remove('theme-oled', 'theme-lavender');
             if (theme === 'oled') document.body.classList.add('theme-oled');
             if (theme === 'lavender') document.body.classList.add('theme-lavender');
+            localStorage.setItem('cfg_theme', theme);
         }
 
         function showAIMessage(text, duration = 4000) {
@@ -838,25 +907,48 @@
 
         vibrateToggle.checked = isVibrateEnabled; soundToggle.checked = isSoundEnabled; aiToggle.checked = isAIEnabled;
         themeSelect.value = currentTheme; goalInput.value = dailyGoal > 0 ? dailyGoal : "";
-        applyTheme(currentTheme);
-        handleStreakSystem();
-        updateProgressRing();
+        applyTheme(currentTheme); handleStreakSystem(); updateProgressRing();
     </script>
 
     <script>
+      let newWorker;
+      const updateToast = document.getElementById('updateToast');
+      const updateBtn = document.getElementById('updateBtn');
+
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log('نظام الأوفلاين نشط وجاهز لحماية تطبيقك! 💾'))
-            .catch(err => console.log('خطأ في نظام الأوفلاين:', err));
+          navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('نظام الأوفلاين نشط وجاهز! 💾');
+
+            // فحص وجود نسخة جديدة على السيرفر
+            reg.addEventListener('updatefound', () => {
+              newWorker = reg.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // إظهار بنر التحديث للمستخدم
+                  updateToast.style.display = 'flex';
+                }
+              });
+            });
+          });
+        });
+
+        // عند الضغط على زر التحديث، نأمر الـ Service Worker بالتحديث فوراً
+        updateBtn.addEventListener('click', () => {
+            if (newWorker) {
+                newWorker.postMessage({ action: 'skipWaiting' });
+            }
+        });
+
+        // عمل إعادة تحميل تلقائي للموقع بعد تفعيل التحديث
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+            }
         });
       }
-
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-      });
     </script>
 </body>
 </html>
