@@ -779,7 +779,25 @@
                 leaderboardList.innerHTML = `<div style="text-align:center; color:var(--text-muted);">ابدأ التسبيح لتكون الأول عالمياً!</div>`;
                 return;
             }
+// حماية الهدف + إغلاق تلقائي ناعم للوحة التحكم بعد إتمام الكتابة
+        goalInput.addEventListener('change', (e) => {
+            const val = parseInt(e.target.value) || 0;
+            if (val > 0 && val <= myScore) {
+                alert(`عذراً يا صديقي! لا يمكنك وضع هدف أقل من أو يساوي تسبيحاتك الحالية (${myScore}).`);
+                goalInput.value = dailyGoal > 0 ? dailyGoal : "";
+                return;
+            }
+            dailyGoal = val;
+            localStorage.setItem('cfg_goal', dailyGoal);
+            isGoalCelebrated = false;
+            localStorage.setItem('cfg_goal_celebrated', 'false');
+            updateProgressRing();
 
+            clearTimeout(autoCloseSettingsTimeout);
+            autoCloseSettingsTimeout = setTimeout(() => {
+                settingsPanel.classList.remove('show');
+            }, 2000);
+        });
             if (leaders.length > 0) {
                 const currentFirstPlaceUser = leaders[0];
                 if (currentFirstPlaceUser.id === myUserId && !amIFirstPlace && myScore > 0) {
