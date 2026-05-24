@@ -20,12 +20,11 @@
             --glass-blur: blur(12px);
         }
 
-        /* الثيمات المتطورة */
         body.theme-oled {
             --bg-main: #000000;
             --bg-card: #0a0a0a;
             --bg-input: rgba(20, 20, 20, 0.7);
-            --primary: #d4af37; /* ذهبي ملكي */
+            --primary: #d4af37;
             --primary-glow: rgba(212, 175, 55, 0.2);
             --accent: #e5e7eb;
             --text-main: #ffffff;
@@ -36,7 +35,7 @@
             --bg-main: #1a1625;
             --bg-card: #241e35;
             --bg-input: rgba(47, 39, 70, 0.7);
-            --primary: #a78bfa; /* بنفسجي هادي */
+            --primary: #a78bfa;
             --primary-glow: rgba(167, 139, 250, 0.2);
             --accent: #f43f5e;
             --text-main: #f3f4f6;
@@ -74,7 +73,6 @@
             overflow: hidden;
         }
 
-        /* رأس الصفحة والأزرار السريعة */
         .header {
             display: flex;
             justify-content: space-between;
@@ -109,7 +107,6 @@
             filter: brightness(1.2);
         }
 
-        /* تأثير الزجاج للمرونة والنعومة (Glassmorphism) */
         .settings-panel {
             background: var(--bg-input);
             backdrop-filter: var(--glass-blur);
@@ -156,7 +153,6 @@
 
         .setting-input { width: 90px; text-align: center; }
 
-        /* شاشة الهوية */
         .profile-card {
             background: linear-gradient(135deg, var(--bg-input), rgba(0,0,0,0.2));
             backdrop-filter: var(--glass-blur);
@@ -195,7 +191,6 @@
             cursor: pointer;
         }
 
-        /* منطقة العداد ومؤشر الإنجاز الدائري */
         .counter-box {
             margin: 20px 0;
             position: relative;
@@ -222,13 +217,12 @@
 
         .progress-ring-circle {
             stroke: var(--primary);
-            stroke-dasharray: 565.48; /* المحيط لقطر 180 */
+            stroke-dasharray: 565.48;
             stroke-dashoffset: 565.48;
             transition: stroke-dashoffset 0.3s ease;
             stroke-linecap: round;
         }
 
-        /* الرقم المجرّد الحركي الناعم */
         .main-number {
             font-size: 4.5rem;
             font-weight: 800;
@@ -238,12 +232,10 @@
             transition: transform 0.08s ease-in-out;
         }
 
-        /* أنيميشن النبض الخفيف عند الضغط */
         .main-number.pop-effect {
             transform: scale(1.15);
         }
 
-        /* أنيميشن الرقم الطائر المرتد (+1) */
         .floating-plus {
             position: absolute;
             color: var(--primary);
@@ -265,7 +257,6 @@
             color: var(--text-muted);
         }
 
-        /* الستريك اليومي الحماسي */
         .streak-badge {
             background: rgba(245, 158, 11, 0.15);
             color: var(--accent);
@@ -278,7 +269,6 @@
             border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
-        /* استايل فقاعة الرفيق الذكي */
         .ai-companion-box {
             background-color: var(--bg-input);
             backdrop-filter: var(--glass-blur);
@@ -315,7 +305,6 @@
             text-shadow: 0 0 15px var(--primary-glow);
         }
 
-        /* زر النبض الرئيسي الأسفل */
         .click-circle {
             width: 150px;
             height: 150px;
@@ -339,7 +328,6 @@
             transform: scale(0.94);
         }
 
-        /* لوحة التترتيب العالمي لايف */
         .leaderboard-box {
             background: linear-gradient(180deg, var(--bg-input), rgba(0,0,0,0.2));
             border-radius: 24px;
@@ -393,7 +381,6 @@
         .player-score { font-weight: 700; color: var(--primary); font-family: monospace; font-size: 1.1rem; }
         .current-user-row { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        /* الأنيميشنز الحركية */
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-15px); }
             to { opacity: 1; transform: translateY(0); }
@@ -404,7 +391,6 @@
             100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
         }
 
-        /* السويتش الجميل */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-main); border-radius: 24px; }
@@ -549,7 +535,6 @@
         let aiTimeout;
         let autoCloseSettingsTimeout;
 
-        // --- نظام الستريك (Streak System) الذكي ---
         function handleStreakSystem() {
             const todayStr = new Date().toDateString();
             const lastActiveDate = localStorage.getItem('streak_last_date');
@@ -560,11 +545,10 @@
                 yesterday.setDate(yesterday.getDate() - 1);
                 
                 if (lastActiveDate === todayStr) {
-                    // مسجل دخول في نفس اليوم فعلياً، لا نغير الستريك
                 } else if (lastActiveDate === yesterday.toDateString()) {
-                    currentStreak++; // تتابع ممتاز، دخل لليوم التالي
+                    currentStreak++;
                 } else {
-                    currentStreak = 1; // فوت يوم أو أكتر، يتم التصفير للبدء من جديد
+                    currentStreak = 1;
                 }
             }
             localStorage.setItem('streak_last_date', todayStr);
@@ -572,11 +556,10 @@
             streakCounterElement.innerText = currentStreak;
         }
 
-        // --- نظام التحكم بالدائرة التفاعلية (Progress Ring) ---
         function updateProgressRing() {
-            const circumference = 2 * Math.PI * 90; // 565.48
+            const circumference = 2 * Math.PI * 90;
             if (dailyGoal === 0) {
-                progressRing.style.strokeDashoffset = circumference; // إخفاء الشريط لو الهدف مفتوح
+                progressRing.style.strokeDashoffset = circumference;
                 return;
             }
             const percentage = Math.min(myScore / dailyGoal, 1);
@@ -584,17 +567,13 @@
             progressRing.style.strokeDashoffset = offset;
         }
 
-        // --- أنيميشن الرقم الطائر المرتد (+1) ---
         function spawnFloatingPlus() {
             const plus = document.createElement('div');
             plus.className = 'floating-plus';
             plus.innerText = '+1';
-            
-            // اختيار زاوية عشوائية طفيفة للحركة
             const randomX = Math.floor(Math.random() * 40) - 20;
             plus.style.left = `calc(50% + ${randomX}px)`;
             plus.style.top = '40%';
-            
             containerArea.appendChild(plus);
             setTimeout(() => plus.remove(), 600);
         }
@@ -651,7 +630,6 @@
             }());
         }
 
-        // إعداد وتثبيت التفضيلات
         vibrateToggle.checked = isVibrateEnabled;
         soundToggle.checked = isSoundEnabled;
         aiToggle.checked = isAIEnabled;
@@ -687,8 +665,8 @@
             localStorage.setItem('cfg_theme', currentTheme);
         });
 
-        // حماية الهدف + إغلاق تلقائي ناعم للوحة التحكم
-        goalInput.addEventListener('input', (e) => {
+        // هنا تم التأكيد القاطع على استخدام حدث 'change' لمنع الاستعجال نهائياً
+        goalInput.addEventListener('change', (e) => {
             const val = parseInt(e.target.value) || 0;
             if (val > 0 && val <= myScore) {
                 alert(`عذراً يا صديقي! لا يمكنك وضع هدف أقل من أو يساوي تسبيحاتك الحالية (${myScore}).`);
@@ -701,20 +679,17 @@
             localStorage.setItem('cfg_goal_celebrated', 'false');
             updateProgressRing();
 
-            // غلق اللوحة تلقائياً بعد 3 ثواني من الكتابة لتسهيل الـ UX
             clearTimeout(autoCloseSettingsTimeout);
             autoCloseSettingsTimeout = setTimeout(() => {
                 settingsPanel.classList.remove('show');
-            }, 3000);
+            }, 2000);
         });
 
-        // زر التسبيح والنبض الرئيسي والتأثيرات الفرعية البصرية
         pressBtn.addEventListener('click', () => {
             checkPacing();
             playClickSound();
             spawnFloatingPlus();
 
-            // أنيميشن النبض للرقم الرئيسي
             counterElement.classList.add('pop-effect');
             setTimeout(() => counterElement.classList.remove('pop-effect'), 80);
 
@@ -779,25 +754,7 @@
                 leaderboardList.innerHTML = `<div style="text-align:center; color:var(--text-muted);">ابدأ التسبيح لتكون الأول عالمياً!</div>`;
                 return;
             }
-// حماية الهدف + إغلاق تلقائي ناعم للوحة التحكم بعد إتمام الكتابة
-        goalInput.addEventListener('change', (e) => {
-            const val = parseInt(e.target.value) || 0;
-            if (val > 0 && val <= myScore) {
-                alert(`عذراً يا صديقي! لا يمكنك وضع هدف أقل من أو يساوي تسبيحاتك الحالية (${myScore}).`);
-                goalInput.value = dailyGoal > 0 ? dailyGoal : "";
-                return;
-            }
-            dailyGoal = val;
-            localStorage.setItem('cfg_goal', dailyGoal);
-            isGoalCelebrated = false;
-            localStorage.setItem('cfg_goal_celebrated', 'false');
-            updateProgressRing();
 
-            clearTimeout(autoCloseSettingsTimeout);
-            autoCloseSettingsTimeout = setTimeout(() => {
-                settingsPanel.classList.remove('show');
-            }, 2000);
-        });
             if (leaders.length > 0) {
                 const currentFirstPlaceUser = leaders[0];
                 if (currentFirstPlaceUser.id === myUserId && !amIFirstPlace && myScore > 0) {
