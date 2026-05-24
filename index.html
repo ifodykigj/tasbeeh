@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>السبحة الرقمية العالمية</title>
+    <title>السبحة الرقمية مع مصحف التلاوة المطور</title>
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -70,7 +70,9 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
-            overflow: hidden;
+            min-height: 650px;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -84,7 +86,6 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-main);
-            letter-spacing: 0.5px;
         }
 
         .icon-btn {
@@ -104,7 +105,6 @@
 
         .icon-btn:hover {
             color: var(--primary);
-            filter: brightness(1.2);
         }
 
         .settings-panel {
@@ -115,94 +115,96 @@
             padding: 15px;
             margin-bottom: 20px;
             display: none;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             text-align: right;
             position: absolute;
             top: 75px;
             left: 25px;
             right: 25px;
-            z-index: 10;
+            z-index: 100;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .settings-panel.show {
-            display: block;
-            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .settings-panel.show { display: block; animation: slideDown 0.3s ease; }
 
         .setting-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-
         .setting-row:last-child { border: none; }
-        .setting-row span { font-size: 0.9rem; }
 
         .setting-select, .setting-input {
             background: var(--bg-main);
             color: var(--text-main);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 5px 10px;
             border-radius: 8px;
             outline: none;
-            font-size: 0.85rem;
+        }
+        .setting-input { width: 80px; text-align: center; }
+
+        .view-section { display: none; flex-direction: column; flex-grow: 1; }
+        .view-section.active { display: flex; }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 16px;
+            padding: 5px;
+            margin-bottom: 20px;
+            gap: 5px;
         }
 
-        .setting-input { width: 90px; text-align: center; }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #000;
+        }
 
         .profile-card {
             background: linear-gradient(135deg, var(--bg-input), rgba(0,0,0,0.2));
-            backdrop-filter: var(--glass-blur);
             border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
+        .input-group { display: flex; gap: 10px; }
         .input-group input {
-            flex: 1;
-            background: var(--bg-main);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 15px;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.95rem;
-            outline: none;
+            flex: 1; background: var(--bg-main); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 12px; border-radius: 12px; color: white; outline: none;
         }
-
-        .input-group input:focus { border-color: var(--primary); }
-
         .input-group button {
-            background: var(--primary);
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 0 20px;
-            border-radius: 12px;
-            cursor: pointer;
+            background: var(--primary); color: #000; font-weight: bold; border: none;
+            padding: 0 15px; border-radius: 12px; cursor: pointer;
         }
 
         .counter-box {
-            margin: 20px 0;
-            position: relative;
+            margin: 15px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
         .progress-container {
             position: relative;
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -211,37 +213,32 @@
         .progress-ring-svg {
             position: absolute;
             transform: rotate(-90deg);
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
         }
 
         .progress-ring-circle {
             stroke: var(--primary);
-            stroke-dasharray: 565.48;
-            stroke-dashoffset: 565.48;
+            stroke-dasharray: 502.65;
+            stroke-dashoffset: 502.65;
             transition: stroke-dashoffset 0.3s ease;
             stroke-linecap: round;
         }
 
         .main-number {
-            font-size: 4.5rem;
+            font-size: 4.2rem;
             font-weight: 800;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: monospace;
             z-index: 2;
             user-select: none;
-            transition: transform 0.08s ease-in-out;
         }
-
-        .main-number.pop-effect {
-            transform: scale(1.15);
-        }
+        .main-number.pop-effect { transform: scale(1.15); }
 
         .floating-plus {
             position: absolute;
             color: var(--primary);
             font-size: 1.5rem;
             font-weight: bold;
-            font-family: monospace;
             pointer-events: none;
             z-index: 5;
             animation: floatUp 0.6s ease-out forwards;
@@ -266,138 +263,93 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
-        .ai-companion-box {
-            background-color: var(--bg-input);
-            backdrop-filter: var(--glass-blur);
-            color: var(--primary);
-            border-right: 4px solid var(--primary);
-            padding: 0; margin: 0; height: 0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.4s ease-in-out;
-            visibility: hidden;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .ai-companion-box.show {
-            opacity: 1;
-            transform: translateY(0);
-            visibility: visible;
-            height: auto;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-        }
-
-        .dhikr-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 15px;
-            text-shadow: 0 0 15px var(--primary-glow);
-        }
-
+        .dhikr-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 15px var(--primary-glow); }
         .click-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
+            width: 130px; height: 130px; border-radius: 50%;
             background: linear-gradient(145deg, var(--primary), #047857);
-            margin: 15px auto;
+            margin: 15px auto; display: flex; justify-content: center; align-items: center;
+            font-size: 1.4rem; font-weight: bold; color: white; border: 5px solid var(--bg-card);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3); cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .click-circle:active { transform: scale(0.94); }
+
+        /* شاشة القرآن الكريم */
+        .quran-container { display: flex; flex-direction: column; gap: 12px; text-align: right; }
+        .quran-select {
+            width: 100%; background: var(--bg-input); color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;
+            outline: none; font-size: 1rem; font-weight: bold;
+        }
+
+        /* لوحة أزرار حفظ وقوف القراءة */
+        .bookmark-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .bookmark-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            border: 6px solid var(--bg-card);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            gap: 5px;
+        }
+        #saveBookmarkBtn { background: rgba(245, 158, 11, 0.2); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.4); }
+        #loadBookmarkBtn { background: rgba(16, 185, 129, 0.2); color: var(--primary); border: 1px solid rgba(16, 185, 129, 0.4); display: none; }
+
+        .quran-text-box {
+            background: rgba(0, 0, 0, 0.2); border-radius: 16px; padding: 20px;
+            max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05);
+            line-height: 2.2; font-size: 1.25rem; text-align: center; color: #fefefe;
+            font-family: 'Amiri', 'Traditional Arabic', serif;
         }
 
-        .click-circle:active {
-            transform: scale(0.94);
+        .audio-player-wrapper {
+            background: var(--bg-input); border-radius: 14px; padding: 10px;
+            display: flex; flex-direction: column; gap: 8px; align-items: center;
         }
+        audio { width: 100%; height: 40px; outline: none; }
 
         .leaderboard-box {
             background: linear-gradient(180deg, var(--bg-input), rgba(0,0,0,0.2));
-            border-radius: 24px;
-            padding: 20px;
-            margin-top: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: right;
+            border-radius: 24px; padding: 15px; margin-top: auto; border: 1px solid rgba(255,255,255,0.05);
         }
-
-        .leaderboard-box h3 {
-            font-size: 1rem;
-            color: var(--accent);
-            text-align: center;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .leader-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px;
-        }
-
+        .leaderboard-box h3 { font-size: 0.95rem; color: var(--accent); text-align: center; margin-bottom: 10px; }
+        .leader-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
         .leader-row:last-child { border: none; }
-        .player-info { display: flex; align-items: center; gap: 10px; }
-
-        .rank-tag {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            background: var(--bg-main);
-            color: var(--text-muted);
-        }
-
+        .player-info { display: flex; align-items: center; gap: 8px; }
+        .rank-tag { width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; font-weight: bold; background: var(--bg-main); color: var(--text-muted); }
         .row-0 .rank-tag { background: #f59e0b; color: #000; }
         .row-1 .rank-tag { background: #94a3b8; color: #000; }
         .row-2 .rank-tag { background: #b45309; color: #fff; }
-
-        .player-name { font-size: 0.95rem; font-weight: 500; }
-        .player-score { font-weight: 700; color: var(--primary); font-family: monospace; font-size: 1.1rem; }
+        .player-score { font-weight: 700; color: var(--primary); font-family: monospace; }
         .current-user-row { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .ai-companion-box {
+            background-color: var(--bg-input); backdrop-filter: var(--glass-blur); color: var(--primary);
+            border-right: 4px solid var(--primary); padding: 8px; border-radius: 8px; font-size: 0.85rem;
+            text-align: center; display: none; width: 100%; margin-bottom: 10px;
         }
+        .ai-companion-box.show { display: block; }
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
-        }
-
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(0.8); } }
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-main); border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
-        .danger-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .danger-btn { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -405,80 +357,78 @@
     <div class="phone-wrapper">
         <div class="header">
             <button class="icon-btn" id="toggleSettingsBtn">⚙️</button>
-            <h1>السبحة الذكية</h1>
+            <h1 id="mainTitle">السبحة الرقمية</h1>
             <button class="icon-btn" id="nextDhikrBtn">🔄</button>
         </div>
 
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="subhaTab">📿 العداد الرئيسي</button>
+            <button class="tab-btn" id="quranTab">📖 مصحف التلاوة</button>
+        </div>
+
         <div class="settings-panel" id="settingsPanel">
-            <div class="setting-row">
-                <span>اهتزاز اللمس</span>
-                <label class="switch">
-                    <input type="checkbox" id="vibrateToggle" checked>
-                    <span class="slider"></span>
-                </label>
+            <div class="setting-row"><span>اهتزاز اللمس</span><label class="switch"><input type="checkbox" id="vibrateToggle" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><span>صوت التكة</span><label class="switch"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><span>الرفيق الذكي</span><label class="switch"><input type="checkbox" id="aiToggle" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><span>ألوان الموقع</span><select id="themeSelect" class="setting-select"><option value="default">الليل المظلم</option><option value="oled">الأسود الملكي</option><option value="lavender">الهدوء النفسي</option></select></div>
+            <div class="setting-row"><span>هدفك للذكر</span><input type="number" id="goalInput" class="setting-input" placeholder="مثال: 100"></div>
+            <div class="setting-row"><span>تصفير أرقامي</span><button class="danger-btn" id="resetAllBtn">تصفير</button></div>
+        </div>
+
+        <div class="view-section active" id="subhaView">
+            <div class="profile-card">
+                <div class="input-group">
+                    <input type="text" id="usernameInput" placeholder="اكتب اسمك المستعار..." maxlength="12">
+                    <button id="saveNameBtn">حفظ</button>
+                </div>
             </div>
-            <div class="setting-row">
-                <span>صوت تكة السبحة</span>
-                <label class="switch">
-                    <input type="checkbox" id="soundToggle" checked>
-                    <span class="slider"></span>
-                </label>
+
+            <div class="counter-box">
+                <div id="aiCompanionMsg" class="ai-companion-box"></div>
+                <div class="dhikr-title" id="dhikrText">سُبْحَانَ اللَّهِ</div>
+                
+                <div class="progress-container" id="containerArea">
+                    <svg class="progress-ring-svg">
+                        <circle class="progress-ring-circle" id="progressRing" stroke-width="5" fill="transparent" r="80" cx="100" cy="100"/>
+                    </svg>
+                    <div class="main-number" id="counter">0</div>
+                </div>
+
+                <div class="user-total-box">
+                    <div>مجموعك اليوم: <span id="totalCounter" style="color:white; font-weight:bold;">0</span></div>
+                    <div class="streak-badge">🔥 <span id="streakCounter">1</span> يوم</div>
+                </div>
             </div>
-            <div class="setting-row">
-                <span>نصائح الرفيق الذكي</span>
-                <label class="switch">
-                    <input type="checkbox" id="aiToggle" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="setting-row">
-                <span>ألوان الموقع (Theme)</span>
-                <select id="themeSelect" class="setting-select">
-                    <option value="default">الليل المظلم</option>
-                    <option value="oled">الأسود الملكي</option>
-                    <option value="lavender">الهدوء النفسي</option>
+
+            <div class="click-circle" id="pressBtn">اضغط</div>
+        </div>
+
+        <div class="view-section" id="quranView">
+            <div class="quran-container">
+                <select class="quran-select" id="surahSelect">
+                    <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
                 </select>
-            </div>
-            <div class="setting-row">
-                <span>هدفك للذكر</span>
-                <input type="number" id="goalInput" class="setting-input" placeholder="مثال: 100" min="0">
-            </div>
-            <div class="setting-row">
-                <span>تصفير أرقامي بالكامل</span>
-                <button class="danger-btn" id="resetAllBtn">تصفير</button>
+
+                <div class="bookmark-actions">
+                    <button class="bookmark-btn" id="saveBookmarkBtn">📌 حفظ علامة الوقوف</button>
+                    <button class="bookmark-btn" id="loadBookmarkBtn">↩️ العودة لعلامة الوقوف</button>
+                </div>
+
+                <div class="quran-text-box" id="surahTextBox">
+                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالرسم العثماني النظيف، مع إمكانية حفظ مكان وقوفك للعودة إليه لاحقاً...
+                </div>
+
+                <div class="audio-player-wrapper">
+                    <span style="font-size:0.8rem; color:var(--text-muted);" id="audioStatusText">صوت التلاوة (الشيخ مشاري العفاسي)</span>
+                    <audio id="quranAudioPlayer" controls></audio>
+                </div>
             </div>
         </div>
-
-        <div class="profile-card">
-            <div class="input-group">
-                <input type="text" id="usernameInput" placeholder="اكتب اسمك المستعار..." maxlength="12">
-                <button id="saveNameBtn">حفظ</button>
-            </div>
-        </div>
-
-        <div class="counter-box">
-            <div id="aiCompanionMsg" class="ai-companion-box"></div>
-            <div class="dhikr-title" id="dhikrText">سُبْحَانَ اللَّهِ</div>
-            
-            <div class="progress-container" id="containerArea">
-                <svg class="progress-ring-svg">
-                    <circle class="progress-ring-circle" id="progressRing" stroke-width="6" fill="transparent" r="90" cx="110" cy="110"/>
-                </svg>
-                <div class="main-number" id="counter">0</div>
-            </div>
-
-            <div class="user-total-box">
-                <div>مجموعك اليوم: <span id="totalCounter" style="color:white; font-weight:bold;">0</span></div>
-                <div class="streak-badge">🔥 <span id="streakCounter">1</span> يوم</div>
-            </div>
-        </div>
-
-        <div class="click-circle" id="pressBtn">اضغط</div>
 
         <div class="leaderboard-box">
             <h3>🏆 صدارة الذاكرين حول العالم</h3>
             <div id="leaderboardList">
-                <div style="text-align:center; color: var(--text-muted); padding: 10px;">جاري الاتصال بالسيرفر العالمي...</div>
+                <div style="text-align:center; color: var(--text-muted); padding: 5px; font-size:0.8rem;">جاري الاتصال بالسيرفر العالمي...</div>
             </div>
         </div>
     </div>
@@ -516,80 +466,176 @@
         const leaderboardList = document.getElementById('leaderboardList');
         const progressRing = document.getElementById('progressRing');
         const containerArea = document.getElementById('containerArea');
-        
         const pressBtn = document.getElementById('pressBtn');
         const saveNameBtn = document.getElementById('saveNameBtn');
         const nextDhikrBtn = document.getElementById('nextDhikrBtn');
         const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
+        
         const vibrateToggle = document.getElementById('vibrateToggle');
         const soundToggle = document.getElementById('soundToggle');
         const aiToggle = document.getElementById('aiToggle');
         const themeSelect = document.getElementById('themeSelect');
         const goalInput = document.getElementById('goalInput');
         const resetAllBtn = document.getElementById('resetAllBtn');
-
         const aiCompanionMsg = document.getElementById('aiCompanionMsg');
-        let lastClickTime = 0;
-        let speedWarningCount = 0;
-        let aiTimeout;
-        let autoCloseSettingsTimeout;
 
-        function handleStreakSystem() {
-            const todayStr = new Date().toDateString();
-            const lastActiveDate = localStorage.getItem('streak_last_date');
-            let currentStreak = parseInt(localStorage.getItem('streak_count')) || 1;
+        const subhaTab = document.getElementById('subhaTab');
+        const quranTab = document.getElementById('quranTab');
+        const subhaView = document.getElementById('subhaView');
+        const quranView = document.getElementById('quranView');
+        const mainTitle = document.getElementById('mainTitle');
+        const surahSelect = document.getElementById('surahSelect');
+        const surahTextBox = document.getElementById('surahTextBox');
+        const quranAudioPlayer = document.getElementById('quranAudioPlayer');
+        const audioStatusText = document.getElementById('audioStatusText');
+        
+        const saveBookmarkBtn = document.getElementById('saveBookmarkBtn');
+        const loadBookmarkBtn = document.getElementById('loadBookmarkBtn');
 
-            if (lastActiveDate) {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                if (lastActiveDate === todayStr) {
-                } else if (lastActiveDate === yesterday.toDateString()) {
-                    currentStreak++;
-                } else {
-                    currentStreak = 1;
-                }
+        let lastClickTime = 0; let speedWarningCount = 0; let aiTimeout; let autoCloseSettingsTimeout;
+
+        // تبديل الشاشات الناعم
+        subhaTab.addEventListener('click', () => {
+            subhaTab.classList.add('active'); quranTab.classList.remove('active');
+            subhaView.classList.add('active'); quranView.classList.remove('active');
+            mainTitle.innerText = "السبحة الرقمية"; nextDhikrBtn.style.visibility = "visible";
+        });
+
+        quranTab.addEventListener('click', () => {
+            quranTab.classList.add('active'); subhaTab.classList.remove('active');
+            quranView.classList.add('active'); subhaView.classList.remove('active');
+            mainTitle.innerText = "القرآن الكريم"; nextDhikrBtn.style.visibility = "hidden";
+            settingsPanel.classList.remove('show');
+            loadSurahList();
+            checkBookmarkStatus(); // التأكد من وجود علامة وقوف سابقة لعرض زر العودة
+        });
+
+        // التحقق من وجود علامة الوقوف المخزنة
+        function checkBookmarkStatus() {
+            const savedSurah = localStorage.getItem('quran_bookmark_id');
+            if (savedSurah) {
+                loadBookmarkBtn.style.display = "flex";
+            } else {
+                loadBookmarkBtn.style.display = "none";
             }
-            localStorage.setItem('streak_last_date', todayStr);
-            localStorage.setItem('streak_count', currentStreak);
+        }
+
+        // تحميل قائمة السور الكريمة
+        async function loadSurahList() {
+            if (surahSelect.options.length > 1) return;
+            try {
+                const response = await fetch("https://api.alquran.cloud/v1/surah");
+                const data = await response.json();
+                surahSelect.innerHTML = '<option value="">📖 اختر السورة الكريمة الآن...</option>';
+                data.data.forEach(surah => {
+                    surahSelect.innerHTML += `<option value="${surah.number}">${surah.number}. ${surah.name}</option>`;
+                });
+            } catch (err) {
+                surahSelect.innerHTML = '<option value="">❌ فشل الاتصال بالسيرفر، أعد المحاولة</option>';
+            }
+        }
+
+        // تشغيل وجلب السورة كاملة صوت وكتابة
+        async function fetchSurahData(surahNum) {
+            surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بالرسم العثماني ونغمة التلاوة الحية...";
+            quranAudioPlayer.src = "";
+
+            try {
+                // جلب النص العثماني
+                const textRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`);
+                const textData = await textRes.json();
+                
+                let fullSurahText = "";
+                // إذا لم تكن التوبة أو الفاتحة، نظهر البسملة في البداية بشكل منسق
+                if (surahNum != 1 && surahNum != 9) {
+                    fullSurahText += `<div style="color:var(--primary); font-weight:bold; margin-bottom:15px; font-size:1.4rem;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+                }
+
+                textData.data.ayahs.forEach(ayah => {
+                    let text = ayah.text;
+                    // إزالة البسملة المكررة تلقائياً من أول آية في السور عدا الفاتحة
+                    if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
+                        text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ", "");
+                    }
+                    fullSurahText += `${text} ﴿${ayah.numberInSurah}﴾ `;
+                });
+                surahTextBox.innerHTML = fullSurahText;
+
+                // ربط السيرفر الصوتي البديل والمستقر 100% (بصوت الشيخ مشاري العفاسي)
+                const formattedNumber = String(surahNum).padStart(3, '0');
+                quranAudioPlayer.src = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
+                audioStatusText.innerText = `🔊 تلاوة سورة ${textData.data.name} - الشيخ مشاري العفاسي`;
+                
+                // تركيز الاسكرول لأعلى الصندوق عند التغيير
+                surahTextBox.scrollTop = 0;
+            } catch (err) {
+                surahTextBox.innerHTML = "❌ عذراً، حدث خطأ أثناء تحميل السورة. تأكد من جودة اتصال الإنترنت.";
+            }
+        }
+
+        surahSelect.addEventListener('change', (e) => {
+            if (e.target.value) fetchSurahData(e.target.value);
+        });
+
+        // زر حفظ علامة الوقوف الحالية
+        saveBookmarkBtn.addEventListener('click', () => {
+            const currentSurah = surahSelect.value;
+            if (!currentSurah) {
+                alert("يرجى اختيار سورة أولاً حتى نتمكن من حفظ علامة وقوفك عليها!");
+                return;
+            }
+            const surahName = surahSelect.options[surahSelect.selectedIndex].text;
+            localStorage.setItem('quran_bookmark_id', currentSurah);
+            localStorage.setItem('quran_bookmark_name', surahName);
+            alert(`📌 تم حفظ علامة الوقوف بنجاح عند: [ ${surahName} ]. يمكنك قفل الموقع والعودة لها في أي وقت!`);
+            checkBookmarkStatus();
+        });
+
+        // زر الانتقال إلى علامة الوقوف المحفوظة
+        loadBookmarkBtn.addEventListener('click', () => {
+            const savedSurahId = localStorage.getItem('quran_bookmark_id');
+            const savedSurahName = localStorage.getItem('quran_bookmark_name');
+            if (savedSurahId) {
+                surahSelect.value = savedSurahId;
+                fetchSurahData(savedSurahId);
+                showAIMessage(`↩️ تم نقلك إلى علامة وقوفك المحفوظة في سورة ${savedSurahName}`);
+            }
+        });
+
+        // --- كود العداد والستريك والصدارة الأصلي الشغال تمام ---
+        function handleStreakSystem() {
+            const todayStr = new Date().toDateString(); const lastActiveDate = localStorage.getItem('streak_last_date');
+            let currentStreak = parseInt(localStorage.getItem('streak_count')) || 1;
+            if (lastActiveDate) {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                if (lastActiveDate === todayStr) {} else if (lastActiveDate === yesterday.toDateString()) { currentStreak++; } else { currentStreak = 1; }
+            }
+            localStorage.setItem('streak_last_date', todayStr); localStorage.setItem('streak_count', currentStreak);
             streakCounterElement.innerText = currentStreak;
         }
 
         function updateProgressRing() {
-            const circumference = 2 * Math.PI * 90;
-            if (dailyGoal === 0) {
-                progressRing.style.strokeDashoffset = circumference;
-                return;
-            }
+            const circumference = 2 * Math.PI * 80;
+            if (dailyGoal === 0) { progressRing.style.strokeDashoffset = circumference; return; }
             const percentage = Math.min(myScore / dailyGoal, 1);
-            const offset = circumference - (percentage * circumference);
-            progressRing.style.strokeDashoffset = offset;
+            progressRing.style.strokeDashoffset = circumference - (percentage * circumference);
         }
 
         function spawnFloatingPlus() {
-            const plus = document.createElement('div');
-            plus.className = 'floating-plus';
-            plus.innerText = '+1';
-            const randomX = Math.floor(Math.random() * 40) - 20;
-            plus.style.left = `calc(50% + ${randomX}px)`;
-            plus.style.top = '40%';
-            containerArea.appendChild(plus);
-            setTimeout(() => plus.remove(), 600);
+            const plus = document.createElement('div'); plus.className = 'floating-plus'; plus.innerText = '+1';
+            const randomX = Math.floor(Math.random() * 40) - 20; plus.style.left = `calc(50% + ${randomX}px)`; plus.style.top = '40%';
+            containerArea.appendChild(plus); setTimeout(() => plus.remove(), 600);
         }
 
         function playClickSound() {
             if (!isSoundEnabled) return;
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
+                const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); 
+                oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
                 oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05);
             } catch(e) {}
         }
@@ -602,181 +648,113 @@
 
         function showAIMessage(text, duration = 4000) {
             if (!isAIEnabled) return;
-            clearTimeout(aiTimeout);
-            aiCompanionMsg.innerText = text;
-            aiCompanionMsg.classList.add('show');
+            clearTimeout(aiTimeout); aiCompanionMsg.innerText = text; aiCompanionMsg.classList.add('show');
             aiTimeout = setTimeout(() => aiCompanionMsg.classList.remove('show'), duration);
         }
 
-        function checkPacing() {
-            const currentTime = new Date().getTime();
-            if (lastClickTime !== 0) {
-                const timeDifference = currentTime - lastClickTime;
-                if (timeDifference < 350) {
-                    speedWarningCount++;
-                    if (speedWarningCount === 7) showAIMessage("مهلاً يا صديقي.. سبّح بتؤدة وتدبّر عظمة الذكر ✨");
-                    else if (speedWarningCount === 18) showAIMessage("جميل أن تذكر الله، ولكن ما رأيك بأن تبطئ قليلاً لتستشعر كل تسبيحة؟ 🌿");
-                } else { speedWarningCount = 0; }
-            }
-            lastClickTime = currentTime;
-        }
-
-        function triggerEpicLeaderboardCelebration() {
-            const duration = 6000; const end = Date.now() + duration;
-            (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-        }
-
-        vibrateToggle.checked = isVibrateEnabled;
-        soundToggle.checked = isSoundEnabled;
-        aiToggle.checked = isAIEnabled;
-        themeSelect.value = currentTheme;
-        goalInput.value = dailyGoal > 0 ? dailyGoal : "";
-        applyTheme(currentTheme);
-        handleStreakSystem();
-        updateProgressRing();
+        vibrateToggle.checked = isVibrateEnabled; soundToggle.checked = isSoundEnabled; aiToggle.checked = isAIEnabled;
+        themeSelect.value = currentTheme; goalInput.value = dailyGoal > 0 ? dailyGoal : "";
+        applyTheme(currentTheme); handleStreakSystem(); updateProgressRing();
 
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => showAIMessage("مرحباً بك في رحاب الذكر.. يوم جديد مليء بالأنوار 🌸"), 1200);
+            setTimeout(() => showAIMessage("مرحباً بك يا غالي.. السبحة وعلامة وقوف القرآن جاهزة في خدمتك 🌸"), 1200);
         });
 
-        counterElement.innerText = myScore;
-        totalCounterElement.innerText = myScore;
+        counterElement.innerText = myScore; totalCounterElement.innerText = myScore;
         usernameInput.value = myName === "مسبح خير" ? "" : myName;
 
-        toggleSettingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.toggle('show');
-        });
-
+        toggleSettingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('show'));
         vibrateToggle.addEventListener('change', (e) => { isVibrateEnabled = e.target.checked; localStorage.setItem('cfg_vibrate', isVibrateEnabled); });
         soundToggle.addEventListener('change', (e) => { isSoundEnabled = e.target.checked; localStorage.setItem('cfg_sound', isSoundEnabled); });
-        aiToggle.addEventListener('change', (e) => {
-            isAIEnabled = e.target.checked;
-            localStorage.setItem('cfg_ai', isAIEnabled);
-            if (!isAIEnabled) aiCompanionMsg.classList.remove('show');
-        });
+        aiToggle.addEventListener('change', (e) => { isAIEnabled = e.target.checked; localStorage.setItem('cfg_ai', isAIEnabled); if (!isAIEnabled) aiCompanionMsg.classList.remove('show'); });
+        themeSelect.addEventListener('change', (e) => { currentTheme = e.target.value; applyTheme(currentTheme); localStorage.setItem('cfg_theme', currentTheme); });
 
-        themeSelect.addEventListener('change', (e) => {
-            currentTheme = e.target.value;
-            applyTheme(currentTheme);
-            localStorage.setItem('cfg_theme', currentTheme);
-        });
-
-        // هنا تم التأكيد القاطع على استخدام حدث 'change' لمنع الاستعجال نهائياً
         goalInput.addEventListener('change', (e) => {
             const val = parseInt(e.target.value) || 0;
             if (val > 0 && val <= myScore) {
                 alert(`عذراً يا صديقي! لا يمكنك وضع هدف أقل من أو يساوي تسبيحاتك الحالية (${myScore}).`);
-                goalInput.value = dailyGoal > 0 ? dailyGoal : "";
-                return;
+                goalInput.value = dailyGoal > 0 ? dailyGoal : ""; return;
             }
-            dailyGoal = val;
-            localStorage.setItem('cfg_goal', dailyGoal);
-            isGoalCelebrated = false;
-            localStorage.setItem('cfg_goal_celebrated', 'false');
+            dailyGoal = val; localStorage.setItem('cfg_goal', dailyGoal);
+            isGoalCelebrated = false; localStorage.setItem('cfg_goal_celebrated', 'false');
             updateProgressRing();
-
-            clearTimeout(autoCloseSettingsTimeout);
-            autoCloseSettingsTimeout = setTimeout(() => {
-                settingsPanel.classList.remove('show');
-            }, 2000);
+            clearTimeout(autoCloseSettingsTimeout); autoCloseSettingsTimeout = setTimeout(() => settingsPanel.classList.remove('show'), 2000);
         });
 
         pressBtn.addEventListener('click', () => {
-            checkPacing();
-            playClickSound();
-            spawnFloatingPlus();
+            const currentTime = new Date().getTime();
+            if (lastClickTime !== 0 && (currentTime - lastClickTime < 350)) {
+                speedWarningCount++;
+                if (speedWarningCount === 7) showAIMessage("مهلاً يا صديقي.. سبّح بتؤدة وتدبّر عظمة الذكر ✨");
+            } else { speedWarningCount = 0; }
+            lastClickTime = currentTime;
 
-            counterElement.classList.add('pop-effect');
-            setTimeout(() => counterElement.classList.remove('pop-effect'), 80);
+            playClickSound(); spawnFloatingPlus();
+            counterElement.classList.add('pop-effect'); setTimeout(() => counterElement.classList.remove('pop-effect'), 80);
 
-            myScore++;
-            counterElement.innerText = myScore;
-            totalCounterElement.innerText = myScore;
+            myScore++; counterElement.innerText = myScore; totalCounterElement.innerText = myScore;
             localStorage.setItem('global_tasbeeh_score', myScore);
             
-            updateScoreInCloud();
+            set(ref(database, 'users/' + myUserId), { username: myName, score: myScore });
             updateProgressRing();
 
             if (dailyGoal > 0 && myScore >= dailyGoal && !isGoalCelebrated) {
-                isGoalCelebrated = true;
-                localStorage.setItem('cfg_goal_celebrated', 'true');
-                showAIMessage(`🎉 هنيئاً لك! حققت هدفك الذي حددته بـ الوصول إلى ${dailyGoal} تسبيحة 🌟`);
+                isGoalCelebrated = true; localStorage.setItem('cfg_goal_celebrated', 'true');
+                showAIMessage(`🎉 هنيئاً لك! حققت هدفك ووصلت إلى ${dailyGoal} تسبيحة 🌟`);
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
             }
-
             if (isVibrateEnabled && navigator.vibrate) navigator.vibrate(20);
         });
 
         nextDhikrBtn.addEventListener('click', () => {
-            dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
-            dhikrText.innerText = dhikrList[dhikrIndex];
+            dhikrIndex = (dhikrIndex + 1) % dhikrList.length; dhikrText.innerText = dhikrList[dhikrIndex];
         });
 
         saveNameBtn.addEventListener('click', () => {
             if(usernameInput.value.trim() !== "") {
-                myName = usernameInput.value.trim();
-                localStorage.setItem('global_tasbeeh_name', myName);
-                updateScoreInCloud();
-                alert("تم تحديث اسمك بنجاح في السيرفر!");
+                myName = usernameInput.value.trim(); localStorage.setItem('global_tasbeeh_name', myName);
+                set(ref(database, 'users/' + myUserId), { username: myName, score: myScore });
+                alert("تم تحديث اسمك بنجاح في السيرفر العالمي!");
             }
         });
 
         resetAllBtn.addEventListener('click', () => {
             if(confirm("هل أنت متأكد من تصفير مجموعك الحالي من السيرفر بالكامل؟")) {
-                myScore = 0; isGoalCelebrated = false;
-                localStorage.setItem('cfg_goal_celebrated', 'false');
+                myScore = 0; isGoalCelebrated = false; localStorage.setItem('cfg_goal_celebrated', 'false');
                 counterElement.innerText = 0; totalCounterElement.innerText = 0;
                 localStorage.setItem('global_tasbeeh_score', 0);
-                updateScoreInCloud();
-                updateProgressRing();
-                settingsPanel.classList.remove('show');
+                set(ref(database, 'users/' + myUserId), { username: myName, score: 0 });
+                updateProgressRing(); settingsPanel.classList.remove('show');
             }
         });
 
-        function updateScoreInCloud() {
-            set(ref(database, 'users/' + myUserId), { username: myName, score: myScore });
-        }
-
         const usersRef = ref(database, 'users');
         const topScoresQuery = query(usersRef, orderByChild('score'), limitToLast(5));
-
         onValue(topScoresQuery, (snapshot) => {
-            let leaders = [];
-            snapshot.forEach((childSnapshot) => { leaders.push({ id: childSnapshot.key, ...childSnapshot.val() }); });
-            leaders.reverse();
-            leaderboardList.innerHTML = "";
-            
-            if(leaders.length === 0) {
-                leaderboardList.innerHTML = `<div style="text-align:center; color:var(--text-muted);">ابدأ التسبيح لتكون الأول عالمياً!</div>`;
-                return;
-            }
-
+            let leaders = []; snapshot.forEach((childSnapshot) => { leaders.push({ id: childSnapshot.key, ...childSnapshot.val() }); });
+            leaders.reverse(); leaderboardList.innerHTML = "";
             if (leaders.length > 0) {
                 const currentFirstPlaceUser = leaders[0];
                 if (currentFirstPlaceUser.id === myUserId && !amIFirstPlace && myScore > 0) {
                     amIFirstPlace = true;
                     setTimeout(() => {
-                        showAIMessage(`🏆 الله أكبر! {وَفِي ذَٰلِكَ فَلْيَتَنَافَسِ الْمُتَنَافِسُونَ}.. لقد اعتليت صدارة الذاكرين حول العالم الآن! هنيئاً لك هذا المقام المبارك 🌟🌿`, 7000);
-                        triggerEpicLeaderboardCelebration();
+                        showAIMessage(`🏆 الله أكبر! لقد اعتليت صدارة الذاكرين حول العالم الآن! هنيئاً لك 🌟🌿`, 6000);
+                        const duration = 4000; const end = Date.now() + duration;
+                        (function frame() {
+                            confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                            confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                            if (Date.now() < end) requestAnimationFrame(frame);
+                        }());
                     }, 600);
                 } else if (currentFirstPlaceUser.id !== myUserId) { amIFirstPlace = false; }
             }
-
             leaders.forEach((leader, index) => {
                 const isMe = leader.id === myUserId ? 'current-user-row' : '';
                 leaderboardList.innerHTML += `
                     <div class="leader-row row-${index} ${isMe}">
-                        <div class="player-info">
-                            <div class="rank-tag">${index + 1}</div>
-                            <span class="player-name">${leader.username}</span>
-                        </div>
+                        <div class="player-info"><div class="rank-tag">${index + 1}</div><span>${leader.username}</span></div>
                         <span class="player-score">${leader.score}</span>
-                    </div>
-                `;
+                    </div>`;
             });
         });
     </script>
