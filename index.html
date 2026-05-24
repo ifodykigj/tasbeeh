@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>السبحة الرقمية مع مصحف التلاوة المطور</title>
+    <title>السبحة الرقمية ومصحف التلاوة المطور</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -18,6 +19,7 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --glass-blur: blur(12px);
+            --quran-font: 'Amiri', serif;
         }
 
         body.theme-oled {
@@ -46,7 +48,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Tajawal', sans-serif;
             transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
@@ -70,7 +72,7 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
-            min-height: 650px;
+            min-height: 750px;
             display: flex;
             flex-direction: column;
         }
@@ -107,6 +109,7 @@
             color: var(--primary);
         }
 
+        /* لوحة الإعدادات الأصلية كاملة */
         .settings-panel {
             background: var(--bg-input);
             backdrop-filter: var(--glass-blur);
@@ -146,9 +149,7 @@
         }
         .setting-input { width: 80px; text-align: center; }
 
-        .view-section { display: none; flex-direction: column; flex-grow: 1; }
-        .view-section.active { display: flex; }
-
+        /* التبويبات الفخمة */
         .nav-tabs {
             display: flex;
             background: var(--bg-input);
@@ -163,7 +164,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
@@ -175,6 +176,10 @@
             color: #000;
         }
 
+        .view-section { display: none; flex-direction: column; flex-grow: 1; }
+        .view-section.active { display: flex; }
+
+        /* شاشة السبحة الأصلية */
         .profile-card {
             background: linear-gradient(135deg, var(--bg-input), rgba(0,0,0,0.2));
             border-radius: 20px;
@@ -266,6 +271,7 @@
         }
 
         .dhikr-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 15px var(--primary-glow); }
+        
         .click-circle {
             width: 130px; height: 130px; border-radius: 50%;
             background: linear-gradient(145deg, var(--primary), #047857);
@@ -276,49 +282,56 @@
         }
         .click-circle:active { transform: scale(0.94); }
 
-        /* شاشة القرآن الكريم */
+        /* شاشة المصحف المطور المنظم */
         .quran-container { display: flex; flex-direction: column; gap: 12px; text-align: right; }
+        
+        .quran-header-box {
+            background: var(--bg-input); padding: 12px; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
         .quran-select {
-            width: 100%; background: var(--bg-input); color: var(--text-main);
-            border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;
+            width: 100%; background: var(--bg-main); color: var(--text-main);
+            border: 1px solid var(--primary); padding: 12px; border-radius: 12px;
             outline: none; font-size: 1rem; font-weight: bold;
         }
 
-        /* لوحة أزرار حفظ وقوف القراءة */
-        .bookmark-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 5px;
+        .resume-card {
+            background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent);
+            padding: 10px 15px; border-radius: 12px; margin-top: 10px;
+            display: none; align-items: center; justify-content: space-between;
+            animation: slideDown 0.3s ease;
         }
-        .bookmark-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-        #saveBookmarkBtn { background: rgba(245, 158, 11, 0.2); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.4); }
-        #loadBookmarkBtn { background: rgba(16, 185, 129, 0.2); color: var(--primary); border: 1px solid rgba(16, 185, 129, 0.4); display: none; }
 
         .quran-text-box {
-            background: rgba(0, 0, 0, 0.2); border-radius: 16px; padding: 20px;
-            max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05);
-            line-height: 2.2; font-size: 1.25rem; text-align: center; color: #fefefe;
-            font-family: 'Amiri', 'Traditional Arabic', serif;
+            background: #fffdf5; /* لون ورق المصحف المريح للعين */
+            color: #1a1a1a; border-radius: 18px; padding: 20px 15px;
+            max-height: 280px; overflow-y: auto; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
+            scrollbar-width: thin;
+        }
+
+        .verse-row {
+            font-family: var(--quran-font);
+            font-size: 1.55rem; line-height: 2.3; text-align: center;
+            margin-bottom: 15px; border-bottom: 1px solid #eee;
+            padding-bottom: 12px; color: #111111;
+        }
+
+        .verse-num {
+            display: inline-block; width: 32px; height: 32px;
+            background: url('https://img.icons8.com/ios/50/000000/quran.png') no-repeat center;
+            background-size: contain; font-size: 0.75rem; font-weight: bold;
+            line-height: 32px; color: #b45309; margin-right: 8px; text-align: center;
         }
 
         .audio-player-wrapper {
             background: var(--bg-input); border-radius: 14px; padding: 10px;
             display: flex; flex-direction: column; gap: 8px; align-items: center;
         }
-        audio { width: 100%; height: 40px; outline: none; }
+        audio { width: 100%; height: 38px; outline: none; }
 
+        /* لوحة الصدارة العالمية الأصلية دايماً ثابتة في الأسفل */
         .leaderboard-box {
             background: linear-gradient(180deg, var(--bg-input), rgba(0,0,0,0.2));
             border-radius: 24px; padding: 15px; margin-top: auto; border: 1px solid rgba(255,255,255,0.05);
@@ -343,6 +356,8 @@
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(0.8); } }
+        
+        /* استايل مفاتيح التوجيه للإعدادات */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-main); border-radius: 24px; }
@@ -405,17 +420,19 @@
 
         <div class="view-section" id="quranView">
             <div class="quran-container">
-                <select class="quran-select" id="surahSelect">
-                    <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
-                </select>
-
-                <div class="bookmark-actions">
-                    <button class="bookmark-btn" id="saveBookmarkBtn">📌 حفظ علامة الوقوف</button>
-                    <button class="bookmark-btn" id="loadBookmarkBtn">↩️ العودة لعلامة الوقوف</button>
+                <div class="quran-header-box">
+                    <select class="quran-select" id="surahSelect">
+                        <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
+                    </select>
+                    
+                    <div class="resume-card" id="resumeBox">
+                        <span id="resumeText" style="font-size:0.85rem; color:var(--accent); font-weight:bold;"></span>
+                        <button style="background:var(--accent); border:none; padding:6px 12px; border-radius:8px; font-weight:bold; color:#000; cursor:pointer;" id="goResumeBtn">أكمل القراءة ↩️</button>
+                    </div>
                 </div>
 
                 <div class="quran-text-box" id="surahTextBox">
-                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالرسم العثماني النظيف، مع إمكانية حفظ مكان وقوفك للعودة إليه لاحقاً...
+                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالتنظيم العثماني الجديد، مع حفظ مكان وقوفك تلقائياً للرجوع إليه لاحقاً...
                 </div>
 
                 <div class="audio-player-wrapper">
@@ -489,9 +506,9 @@
         const surahTextBox = document.getElementById('surahTextBox');
         const quranAudioPlayer = document.getElementById('quranAudioPlayer');
         const audioStatusText = document.getElementById('audioStatusText');
-        
-        const saveBookmarkBtn = document.getElementById('saveBookmarkBtn');
-        const loadBookmarkBtn = document.getElementById('loadBookmarkBtn');
+        const resumeBox = document.getElementById('resumeBox');
+        const resumeText = document.getElementById('resumeText');
+        const goResumeBtn = document.getElementById('goResumeBtn');
 
         let lastClickTime = 0; let speedWarningCount = 0; let aiTimeout; let autoCloseSettingsTimeout;
 
@@ -505,23 +522,29 @@
         quranTab.addEventListener('click', () => {
             quranTab.classList.add('active'); subhaTab.classList.remove('active');
             quranView.classList.add('active'); subhaView.classList.remove('active');
-            mainTitle.innerText = "القرآن الكريم"; nextDhikrBtn.style.visibility = "hidden";
+            mainTitle.innerText = "مصحف التلاوة"; nextDhikrBtn.style.visibility = "hidden";
             settingsPanel.classList.remove('show');
             loadSurahList();
-            checkBookmarkStatus(); // التأكد من وجود علامة وقوف سابقة لعرض زر العودة
+            checkResumeStatus(); // فحص علامة الوقوف تلقائياً
         });
 
-        // التحقق من وجود علامة الوقوف المخزنة
-        function checkBookmarkStatus() {
-            const savedSurah = localStorage.getItem('quran_bookmark_id');
-            if (savedSurah) {
-                loadBookmarkBtn.style.display = "flex";
+        // فحص علامة الوقوف المخزنة تلقائياً
+        function checkResumeStatus() {
+            const id = localStorage.getItem('last_surah_id');
+            const name = localStorage.getItem('last_surah_name');
+            if (id) {
+                resumeBox.style.display = "flex";
+                resumeText.innerText = `📖 كنت تقرأ سورة ${name}`;
+                goResumeBtn.onclick = () => {
+                    surahSelect.value = id;
+                    fetchSurahData(id);
+                };
             } else {
-                loadBookmarkBtn.style.display = "none";
+                resumeBox.style.display = "none";
             }
         }
 
-        // تحميل قائمة السور الكريمة
+        // جلب قائمة السور
         async function loadSurahList() {
             if (surahSelect.options.length > 1) return;
             try {
@@ -536,38 +559,40 @@
             }
         }
 
-        // تشغيل وجلب السورة كاملة صوت وكتابة
+        // جلب الآيات وعرضها بكروت منظمة وخالية من المربعات
         async function fetchSurahData(surahNum) {
-            surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بالرسم العثماني ونغمة التلاوة الحية...";
+            surahTextBox.innerHTML = "⏳ جاري جلب الآيات الكريمة بالرسم العثماني المحمي ونغمة التلاوة الحية...";
             quranAudioPlayer.src = "";
 
             try {
-                // جلب النص العثماني
                 const textRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`);
                 const textData = await textRes.json();
                 
-                let fullSurahText = "";
-                // إذا لم تكن التوبة أو الفاتحة، نظهر البسملة في البداية بشكل منسق
+                let htmlContent = "";
                 if (surahNum != 1 && surahNum != 9) {
-                    fullSurahText += `<div style="color:var(--primary); font-weight:bold; margin-bottom:15px; font-size:1.4rem;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+                    htmlContent += `<div style="font-family:var(--quran-font); font-size:1.8rem; color:#b45309; text-align:center; margin-bottom:20px; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
                 }
 
                 textData.data.ayahs.forEach(ayah => {
                     let text = ayah.text;
-                    // إزالة البسملة المكررة تلقائياً من أول آية في السور عدا الفاتحة
                     if (surahNum != 1 && ayah.numberInSurah == 1 && text.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ")) {
                         text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ", "");
                     }
-                    fullSurahText += `${text} ﴿${ayah.numberInSurah}﴾ `;
+                    htmlContent += `<div class="verse-row">${text} <span class="verse-num">${ayah.numberInSurah}</span></div>`;
                 });
-                surahTextBox.innerHTML = fullSurahText;
+                
+                surahTextBox.innerHTML = htmlContent;
 
-                // ربط السيرفر الصوتي البديل والمستقر 100% (بصوت الشيخ مشاري العفاسي)
+                // سيرفر الصوت المضمون والشغال 100% لمشاري العفاسي
                 const formattedNumber = String(surahNum).padStart(3, '0');
                 quranAudioPlayer.src = `https://server8.mp3quran.net/afs/${formattedNumber}.mp3`;
-                audioStatusText.innerText = `🔊 تلاوة سورة ${textData.data.name} - الشيخ مشاري العفاسي`;
+                audioStatusText.innerText = `🔊 سورة ${textData.data.name} - الشيخ مشاري العفاسي`;
                 
-                // تركيز الاسكرول لأعلى الصندوق عند التغيير
+                // حفظ الموقف أوتوماتيكياً بمجرد الاختيار والقراءة
+                localStorage.setItem('last_surah_id', surahNum);
+                localStorage.setItem('last_surah_name', textData.data.name);
+                checkResumeStatus();
+
                 surahTextBox.scrollTop = 0;
             } catch (err) {
                 surahTextBox.innerHTML = "❌ عذراً، حدث خطأ أثناء تحميل السورة. تأكد من جودة اتصال الإنترنت.";
@@ -578,32 +603,7 @@
             if (e.target.value) fetchSurahData(e.target.value);
         });
 
-        // زر حفظ علامة الوقوف الحالية
-        saveBookmarkBtn.addEventListener('click', () => {
-            const currentSurah = surahSelect.value;
-            if (!currentSurah) {
-                alert("يرجى اختيار سورة أولاً حتى نتمكن من حفظ علامة وقوفك عليها!");
-                return;
-            }
-            const surahName = surahSelect.options[surahSelect.selectedIndex].text;
-            localStorage.setItem('quran_bookmark_id', currentSurah);
-            localStorage.setItem('quran_bookmark_name', surahName);
-            alert(`📌 تم حفظ علامة الوقوف بنجاح عند: [ ${surahName} ]. يمكنك قفل الموقع والعودة لها في أي وقت!`);
-            checkBookmarkStatus();
-        });
-
-        // زر الانتقال إلى علامة الوقوف المحفوظة
-        loadBookmarkBtn.addEventListener('click', () => {
-            const savedSurahId = localStorage.getItem('quran_bookmark_id');
-            const savedSurahName = localStorage.getItem('quran_bookmark_name');
-            if (savedSurahId) {
-                surahSelect.value = savedSurahId;
-                fetchSurahData(savedSurahId);
-                showAIMessage(`↩️ تم نقلك إلى علامة وقوفك المحفوظة في سورة ${savedSurahName}`);
-            }
-        });
-
-        // --- كود العداد والستريك والصدارة الأصلي الشغال تمام ---
+        // --- كود نظام السبحة والإعدادات والستريك والصدارة (النسخة الأصلية كاملة) ---
         function handleStreakSystem() {
             const todayStr = new Date().toDateString(); const lastActiveDate = localStorage.getItem('streak_last_date');
             let currentStreak = parseInt(localStorage.getItem('streak_count')) || 1;
@@ -657,7 +657,7 @@
         applyTheme(currentTheme); handleStreakSystem(); updateProgressRing();
 
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => showAIMessage("مرحباً بك يا غالي.. السبحة وعلامة وقوف القرآن جاهزة في خدمتك 🌸"), 1200);
+            setTimeout(() => showAIMessage("مرحباً بك يا غالي.. تم دمج كافة الخصائص والإعدادات بنجاح تام 🌸"), 1200);
         });
 
         counterElement.innerText = myScore; totalCounterElement.innerText = myScore;
