@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>السبحة الرقمية ومصحف التلاوة المطور</title>
     
-    <meta name="description" content="السبحة الرقمية المطور ومصحف التلاوة الشامل - سبح واقرأ القرآن مع نظام صدارة عالمي وحفظ تلقائي للآيات من تطوير خالد مؤمن">
+    <meta name="description" content="السبحة الرقمية المطور ومصحف التلاوة الشامل - سبح واقرأ القرآن مع نظام صدارة عالمي وحفظ تلقائي للآيات وإحصائيات متقدمة من تطوير خالد مؤمن">
     <meta name="keywords" content="سبحة رقمية, مصحف اونلاين, تسبيح لايف, عداد استغفار, مشاري العفاسي, اذكار المسلم, خالد مؤمن, خالد الهواري">
     <meta name="author" content="خالد مؤمن">
     
     <link rel="manifest" href="./manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -169,7 +171,7 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .tab-btn.active { background: var(--primary); color: #000; }
@@ -234,7 +236,6 @@
             z-index: 2;
             user-select: none;
         }
-        .main-number.pop-effect { transform: scale(1.15); }
 
         .floating-plus {
             position: absolute;
@@ -294,14 +295,6 @@
             outline: none; font-size: 1rem; font-weight: bold;
         }
 
-        .download-btn {
-            background: var(--bg-main); color: var(--accent); border: 1px solid var(--accent);
-            padding: 0 15px; border-radius: 12px; cursor: pointer; font-weight: bold;
-            display: flex; justify-content: center; align-items: center; font-size: 1.1rem;
-        }
-        .download-btn.downloaded { color: var(--primary); border-color: var(--primary); }
-        .download-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .resume-card {
             background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent);
             padding: 10px 15px; border-radius: 12px; margin-top: 5px;
@@ -312,9 +305,8 @@
         .quran-text-box {
             background: #fffdf5;
             color: #1a1a1a; border-radius: 18px; padding: 20px 15px;
-            max-height: 280px; overflow-y: auto; 
+            max-height: 250px; overflow-y: auto; 
             box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
-            scrollbar-width: thin;
         }
 
         .verse-row {
@@ -324,18 +316,19 @@
             padding-bottom: 12px; color: #111111;
         }
 
-        .verse-num {
-            display: inline-block; width: 32px; height: 32px;
-            background: url('https://img.icons8.com/ios/50/000000/quran.png') no-repeat center;
-            background-size: contain; font-size: 0.75rem; font-weight: bold;
-            line-height: 32px; color: #b45309; margin-right: 8px; text-align: center;
-        }
-
         .audio-player-wrapper {
             background: var(--bg-input); border-radius: 14px; padding: 10px;
             display: flex; flex-direction: column; gap: 8px; align-items: center;
         }
         audio { width: 100%; height: 38px; outline: none; }
+
+        .analytics-card {
+            background: var(--bg-input);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
         .leaderboard-box {
             background: linear-gradient(180deg, var(--bg-input), rgba(0,0,0,0.2));
@@ -365,16 +358,6 @@
         }
         .ai-companion-box.show { display: block; }
 
-        .update-toast {
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: var(--accent); color: #000; padding: 15px; 
-            border-radius: 16px; font-weight: bold; display: none; 
-            justify-content: space-between; align-items: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999;
-            animation: slideDown 0.3s ease reverse;
-        }
-        .update-toast button { background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(0.8); } }
         
@@ -389,11 +372,6 @@
 </head>
 <body>
 
-    <div class="update-toast" id="updateToast">
-        <span>✨ متوفر تحديث فخم جديد للتطبيق!</span>
-        <button id="updateBtn">تحديث الآن 🔄</button>
-    </div>
-
     <div class="phone-wrapper">
         <div class="header">
             <button class="icon-btn" id="toggleSettingsBtn">⚙️</button>
@@ -403,6 +381,7 @@
 
         <div class="nav-tabs">
             <button class="tab-btn active" id="subhaTab">📿 العداد الرئيسي</button>
+            <button class="tab-btn" id="chartTab">📊 التحليلات البيانية</button>
             <button class="tab-btn" id="quranTab">📖 مصحف التلاوة</button>
         </div>
 
@@ -411,7 +390,7 @@
             <div class="setting-row"><span>صوت التكة</span><label class="switch"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label></div>
             <div class="setting-row"><span>الرفيق الذكي</span><label class="switch"><input type="checkbox" id="aiToggle" checked><span class="slider"></span></label></div>
             <div class="setting-row"><span>ألوان الموقع</span><select id="themeSelect" class="setting-select"><option value="default">الليل المظلم</option><option value="oled">الأسود الملكي</option><option value="lavender">الهدوء النفسي</option></select></div>
-            <div class="setting-row"><span>هدفك للذكر</span><input type="number" id="goalInput" class="setting-input" placeholder="مثال: 100"></div>
+            <div class="setting-row"><span>هدفك للذكر</span><input type="number" id="goalInput" class="setting-input" placeholder="100"></div>
             <div class="setting-row"><span>تصفير أرقامي</span><button class="danger-btn" id="resetAllBtn">تصفير</button></div>
         </div>
 
@@ -449,6 +428,17 @@
             <div class="click-circle" id="pressBtn">اضغط</div>
         </div>
 
+        <div class="view-section" id="chartView">
+            <div class="analytics-card">
+                <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 10px; text-align: center;">📈 نشاطك السبوعي في التسبيح</h3>
+                <canvas id="weeklyChart" style="max-height: 200px; width: 100%;"></canvas>
+            </div>
+            <div class="profile-card" style="font-size: 0.9rem; line-height: 1.8;">
+                📌 <span style="color: var(--text-muted);">أكثر الأيام نشاطاً:</span> <span id="activeDay" style="color: var(--accent); font-weight: bold;">جاري الحساب...</span><br>
+                ✨ <span style="color: var(--text-muted);">معدل تسبيحك اليومي:</span> <span id="avgTasbeeh" style="color: var(--primary); font-weight: bold;">0</span> تسبيحة/يوم
+            </div>
+        </div>
+
         <div class="view-section" id="quranView">
             <div class="quran-container">
                 <div class="quran-header-box">
@@ -456,17 +446,15 @@
                         <select class="quran-select" id="surahSelect">
                             <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
                         </select>
-                        <button class="download-btn" id="downloadSurahBtn" title="تحميل السورة للاستماع بدون إنترنت" disabled>📥</button>
                     </div>
-                    
                     <div class="resume-card" id="resumeBox">
                         <span id="resumeText" style="font-size:0.85rem; color:var(--accent); font-weight:bold;"></span>
-                        <button style="background:var(--accent); border:none; padding:6px 12px; border-radius:8px; font-weight:bold; color:#000; cursor:pointer;" id="goResumeBtn">أكمل القراءة ↩️</button>
+                        <button style="background:var(--accent); border:none; padding:6px 12px; border-radius:8px; font-weight:bold; color:#000; cursor:pointer;" id="goResumeBtn">أكمل ↩️</button>
                     </div>
                 </div>
 
                 <div class="quran-text-box" id="surahTextBox">
-                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالتنظيم العثماني الجديد، مع حفظ مكان وقوفك تلقائياً للرجوع إليه لاحقاً...
+                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالتنظيم العثماني الجديد...
                 </div>
 
                 <div class="audio-player-wrapper">
@@ -491,8 +479,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // إعداد الفايربيس الخاص بك
         const firebaseConfig = { databaseURL: "https://tasbeeh-6f45a-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
@@ -503,241 +492,278 @@
         let myScore = parseInt(localStorage.getItem('global_tasbeeh_score')) || 0;
         let myName = localStorage.getItem('global_tasbeeh_name') || "مسبح خير";
         let myUserId = localStorage.getItem('global_tasbeeh_uid') || "u_" + Math.random().toString(36).substr(2, 9);
-        
+        localStorage.setItem('global_tasbeeh_uid', myUserId);
+
         let isVibrateEnabled = localStorage.getItem('cfg_vibrate') !== 'false';
         let isSoundEnabled = localStorage.getItem('cfg_sound') !== 'false';
         let isAIEnabled = localStorage.getItem('cfg_ai') !== 'false';
         let currentTheme = localStorage.getItem('cfg_theme') || 'default';
         let dailyGoal = parseInt(localStorage.getItem('cfg_goal')) || 0;
-        let isGoalCelebrated = localStorage.getItem('cfg_goal_celebrated') === 'true'; 
-        let amIFirstPlace = false;
-        
-        let localSessionCount = myScore; 
 
-        let dbQuran;
-
-        localStorage.setItem('global_tasbeeh_uid', myUserId);
+        // إدارة الذاكرة المحلية للإحصائيات البيانية
+        let analyticsData = JSON.parse(localStorage.getItem('tasbeeh_analytics')) || {
+            "الأحد": 0, "الإثنين": 0, "الثلاثاء": 0, "الأربعاء": 0, "الخميس": 0, "الجمعة": 0, "السبت": 0
+        };
 
         const counterElement = document.getElementById('counter');
         const totalCounterElement = document.getElementById('totalCounter');
-        const streakCounterElement = document.getElementById('streakCounter');
         const usernameInput = document.getElementById('usernameInput');
         const dhikrText = document.getElementById('dhikrText');
         const leaderboardList = document.getElementById('leaderboardList');
         const globalVisitorsCount = document.getElementById('globalVisitorsCount');
         const progressRing = document.getElementById('progressRing');
-        const containerArea = document.getElementById('containerArea');
         const pressBtn = document.getElementById('pressBtn');
-        const saveNameBtn = document.getElementById('saveNameBtn');
-        const nextDhikrBtn = document.getElementById('nextDhikrBtn');
-        const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
-        
-        const vibrateToggle = document.getElementById('vibrateToggle');
-        const soundToggle = document.getElementById('soundToggle');
-        const aiToggle = document.getElementById('aiToggle');
-        const themeSelect = document.getElementById('themeSelect');
-        const goalInput = document.getElementById('goalInput');
-        const resetAllBtn = document.getElementById('resetAllBtn');
-        const aiCompanionMsg = document.getElementById('aiCompanionMsg');
+        const weeklyChartCanvas = document.getElementById('weeklyChart').getContext('2d');
+        let myChart;
 
-        const subhaTab = document.getElementById('subhaTab');
-        const quranTab = document.getElementById('quranTab');
-        const subhaView = document.getElementById('subhaView');
-        const quranView = document.getElementById('quranView');
-        const mainTitle = document.getElementById('mainTitle');
-        const surahSelect = document.getElementById('surahSelect');
-        const surahTextBox = document.getElementById('surahTextBox');
-        const quranAudioPlayer = document.getElementById('quranAudioPlayer');
-        const audioStatusText = document.getElementById('audioStatusText');
-        const resumeBox = document.getElementById('resumeBox');
-        const resumeText = document.getElementById('resumeText');
-        const goResumeBtn = document.getElementById('goResumeBtn');
-        const downloadSurahBtn = document.getElementById('downloadSurahBtn');
-
-        let lastClickTime = 0; 
-        let speedWarningCount = 0; 
-        let aiTimeout;
-
-        const dbRequest = indexedDB.open("QuranOfflineDB", 1);
-        dbRequest.onupgradeneeded = (e) => {
-            let db = e.target.result;
-            if (!db.objectStoreNames.contains("surahs")) {
-                db.createObjectStore("surahs", { keyPath: "id" });
-            }
-        };
-
-        // دالة جلب آية عشوائية حقيقية بالكامل من الـ API
-        async function loadDailyVerse() {
-            const verseText = document.getElementById('dailyVerseText');
-            const verseInfo = document.getElementById('dailyVerseInfo');
-            
-            try {
-                const randomVerse = Math.floor(Math.random() * 6236) + 1;
-                // جلب الآية بالتشكيل العثماني المريح للعين
-                const response = await fetch(`https://api.alquran.cloud/v1/ayah/${randomVerse}/ar.quran-uthmani`);
-                const data = await response.json();
-                
-                if (data.code === 200 && data.data) {
-                    const ayah = data.data;
-                    verseText.innerText = `« ${ayah.text} »`;
-                    verseInfo.innerText = `[ سورة ${ayah.surah.name} - آية ${ayah.numberInSurah} ]`;
-                } else {
-                    useFallbackVerse();
-                }
-            } catch (err) {
-                useFallbackVerse();
-            }
-        }
-
-        function useFallbackVerse() {
-            document.getElementById('dailyVerseText').innerText = "« إِنَّ مَعَ الْعُسْرِ يُسْرًا »";
-            document.getElementById('dailyVerseInfo').innerText = "[ سورة الشرح - آية 6 ]";
-        }
-
-        dbRequest.onsuccess = (e) => { 
-            dbQuran = e.target.result; 
-        };
-
-        loadDailyVerse();
-
-        counterElement.innerText = localSessionCount;
+        // تهيئة العدادات في الواجهة
+        let localCount = 0;
+        counterElement.innerText = localCount;
         totalCounterElement.innerText = myScore;
         usernameInput.value = myName === "مسبح خير" ? "" : myName;
+        document.body.className = currentTheme !== 'default' ? 'theme-' + currentTheme : '';
 
-        function registerUniqueVisitor() {
-            const hasVisitedBefore = localStorage.getItem('has_visited_platform');
-            if (!hasVisitedBefore) {
-                const visitorsRef = ref(database, 'stats/visitorsCount');
-                runTransaction(visitorsRef, (currentValue) => {
-                    return (currentValue || 0) + 1;
-                }).then(() => {
-                    localStorage.setItem('has_visited_platform', 'true');
-                });
-            }
-        }
-        registerUniqueVisitor();
+        // تفعيل أزرار التبديل (Tabs)
+        const tabs = {
+            subhaTab: 'subhaView',
+            chartTab: 'chartView',
+            quranTab: 'quranView'
+        };
 
-        onValue(ref(database, 'stats/visitorsCount'), (snapshot) => {
-            if (snapshot.exists()) {
-                globalVisitorsCount.innerText = snapshot.val();
-            } else {
-                globalVisitorsCount.innerText = "1";
-            }
-        });
-
-        subhaTab.addEventListener('click', () => {
-            subhaTab.classList.add('active'); quranTab.classList.remove('active');
-            subhaView.classList.add('active'); quranView.classList.remove('active');
-            mainTitle.innerText = "السبحة الرقمية"; nextDhikrBtn.style.visibility = "visible";
-        });
-
-        quranTab.addEventListener('click', () => {
-            quranTab.classList.add('active'); subhaTab.classList.remove('active');
-            quranView.classList.add('active'); subhaView.classList.remove('active');
-            mainTitle.innerText = "مصحف التلاوة"; nextDhikrBtn.style.visibility = "hidden";
-            settingsPanel.classList.remove('show');
-            if (typeof loadSurahList === "function") loadSurahList();
-            if (typeof checkResumeStatus === "function") checkResumeStatus(); 
-        });
-
-        function updateFirebase() {
-            set(ref(database, 'users/' + myUserId), {
-                name: myName,
-                score: myScore,
-                lastActive: Date.now()
-            });
-            localStorage.setItem('global_tasbeeh_score', myScore);
-            totalCounterElement.innerText = myScore;
-            if (typeof updateProgressRing === "function") updateProgressRing();
-        }
-
-        onValue(ref(database, 'users'), (snapshot) => {
-            if (snapshot.exists()) {
-                let allUsers = [];
-                snapshot.forEach((childSnapshot) => {
-                    let userData = childSnapshot.val();
-                    userData.uid = childSnapshot.key; 
-                    allUsers.push(userData);
-                });
-
-                allUsers.sort((a, b) => b.score - a.score);
-
-                const myRankIndex = allUsers.findIndex(u => u.uid === myUserId);
-                const myActualRank = myRankIndex !== -1 ? myRankIndex + 1 : "غير معروف";
-
-                let myBadge = "🌱 ذاكر مبتدئ";
-                if (myScore >= 10000) myBadge = "👑 سلطان الذاكرين";
-                else if (myScore >= 5000) myBadge = "💎 الذاكر الماسي";
-                else if (myScore >= 1000) myBadge = "✨ الذاكر المحترف";
-                else if (myScore >= 100) myBadge = "🔥 ذاكر نشط";
-
-                leaderboardList.innerHTML = "";
-                const top5 = allUsers.slice(0, 5);
+        Object.keys(tabs).forEach(tabId => {
+            document.getElementById(tabId).addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
                 
-                let oldFirstPlaceState = amIFirstPlace;
-                amIFirstPlace = false;
-
-                top5.forEach((user, index) => {
-                    const currentName = user.name || "مسبح مجهول";
-                    const currentScore = user.score !== undefined ? user.score : 0;
-                    const isMe = user.uid === myUserId ? "current-user-row" : "";
-                    
-                    if (index === 0 && user.uid === myUserId) {
-                        amIFirstPlace = true;
-                    }
-
-                    leaderboardList.innerHTML += `
-                        <div class="leader-row ${isMe} row-${index}">
-                            <div class="player-info">
-                                <span class="rank-tag">${index + 1}</span>
-                                <span style="font-weight:500;">${currentName}</span>
-                            </div>
-                            <span class="player-score">${currentScore}</span>
-                        </div>
-                    `;
-                });
-
-                leaderboardList.innerHTML += `
-                    <div style="margin-top: 10px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-top: 1px dashed rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
-                        <span style="color: var(--text-muted);">ترتيبك الحالي: <b style="color:var(--accent);">#${myActualRank}</b></span>
-                        <span style="color: var(--primary); font-weight: bold;">${myBadge}</span>
-                    </div>
-                `;
-            }
+                e.target.classList.add('active');
+                document.getElementById(tabs[tabId]).classList.add('active');
+                
+                if (tabId === 'chartTab') renderAnalyticsChart();
+                if (tabId === 'quranTab') loadSurahs();
+            });
         });
 
-        // بقية دوال التحكم والـ Event Listeners الأساسية للسبحة
-        toggleSettingsBtn.addEventListener('click', () => {
+        // زر الترس لفتح الإعدادات
+        document.getElementById('toggleSettingsBtn').addEventListener('click', () => {
             settingsPanel.classList.toggle('show');
         });
 
-        saveNameBtn.addEventListener('click', () => {
-            const inputVal = usernameInput.value.trim();
-            if (inputVal) {
-                myName = inputVal;
+        // تغيير الذكر التلقائي
+        document.getElementById('nextDhikrBtn').addEventListener('click', () => {
+            dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
+            dhikrText.innerText = dhikrList[dhikrIndex];
+            localCount = 0;
+            counterElement.innerText = localCount;
+            updateProgressRing();
+        });
+
+        // حفظ الاسم المستعار
+        document.getElementById('saveNameBtn').addEventListener('click', () => {
+            const val = usernameInput.value.trim();
+            if(val) {
+                myName = val;
                 localStorage.setItem('global_tasbeeh_name', myName);
                 updateFirebase();
-                alert("تم حفظ اسمك المستعار بنجاح في السيرفر العالمي! ✨");
+                alert("تم حفظ اسمك الفخم بنجاح! ✨");
             }
         });
 
-        nextDhikrBtn.addEventListener('click', () => {
-            dhikrIndex = (dhikrIndex + 1) % dhikrList.length;
-            dhikrText.innerText = dhikrList[dhikrIndex];
+        // دالة تشغيل وإضافة نقاط التسبيح
+        pressBtn.addEventListener('click', () => {
+            localCount++;
+            myScore++;
+            counterElement.innerText = localCount;
+            totalCounterElement.innerText = myScore;
+
+            // تسجيل وحفظ الإحصائيات لليوم الحالي
+            const daysMapping = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const currentDayName = daysMapping[new Date().getDay()];
+            analyticsData[currentDayName] = (analyticsData[currentDayName] || 0) + 1;
+            localStorage.setItem('tasbeeh_analytics', JSON.stringify(analyticsData));
+
+            if (isVibrateEnabled && navigator.vibrate) navigator.vibrate(15);
+            if (isSoundEnabled) new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3').play().catch(()=>{});
+
+            // تحديث شريط التقدم الدائري
+            updateProgressRing();
+
+            // الاحتفال بالهدف
+            if (dailyGoal > 0 && localCount === dailyGoal) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            }
+
+            // تحديث دوري خفيف على السيرفر
+            if (myScore % 5 === 0) updateFirebase();
         });
 
-        pressBtn.addEventListener('click', () => {
-            myScore++;
-            localSessionCount++;
-            counterElement.innerText = localSessionCount;
-            updateFirebase();
+        function updateProgressRing() {
+            const goal = dailyGoal || 33;
+            const percentage = Math.min((localCount / goal) * 100, 100);
+            const offset = 502.65 - (502.65 * percentage) / 100;
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        function updateFirebase() {
+            set(ref(database, 'users/' + myUserId), {
+                name: myName, score: myScore, lastActive: Date.now()
+            });
+            localStorage.setItem('global_tasbeeh_score', myScore);
+        }
+
+        // جلب زوار السيرفر من الفايربيس
+        onValue(ref(database, 'stats/visitorsCount'), (snap) => {
+            globalVisitorsCount.innerText = snap.exists() ? snap.val() : "1";
+        });
+
+        // جلب قائمة المتصدرين أونلاين
+        onValue(ref(database, 'users'), (snapshot) => {
+            if (snapshot.exists()) {
+                let allUsers = [];
+                snapshot.forEach((child) => {
+                    let u = child.val(); u.uid = child.key; allUsers.push(u);
+                });
+                allUsers.sort((a, b) => b.score - a.score);
+                
+                leaderboardList.innerHTML = "";
+                allUsers.slice(0, 5).forEach((user, idx) => {
+                    const isMe = user.uid === myUserId ? "current-user-row" : "";
+                    leaderboardList.innerHTML += `
+                        <div class="leader-row ${isMe} row-${idx}">
+                            <div class="player-info">
+                                <span class="rank-tag">${idx + 1}</span>
+                                <span>${user.name || "مسبح مجهول"}</span>
+                            </div>
+                            <span class="player-score">${user.score || 0}</span>
+                        </div>`;
+                });
+            }
+        });
+
+        // دالة بناء وتحديث الرسم البياني التحللي الفخم
+        function renderAnalyticsChart() {
+            const labels = Object.keys(analyticsData);
+            const values = Object.values(analyticsData);
+
+            // حسابات الملخص المرئي
+            let maxVal = -1, maxDay = "لا يوجد";
+            let totalSum = 0;
+            labels.forEach(day => {
+                totalSum += analyticsData[day];
+                if(analyticsData[day] > maxVal && analyticsData[day] > 0) {
+                    maxVal = analyticsData[day];
+                    maxDay = day;
+                }
+            });
+
+            document.getElementById('activeDay').innerText = maxVal > 0 ? maxDay : "في انتظار بدء التسبيح";
+            document.getElementById('avgTasbeeh').innerText = Math.round(totalSum / 7);
+
+            // مسح الرسم القديم لتفادي التداخل البصري في الكانفاس
+            if (myChart) myChart.destroy();
+
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#10b981';
+
+            myChart = new Chart(weeklyChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'عدد التسبيحات',
+                        data: values,
+                        backgroundColor: primaryColor,
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // جلب قائمة السور والمصحف الشامل عبر الـ API
+        async function loadSurahs() {
+            if (surahSelect.options.length > 1) return; // تم تحميلها مسبقاً
+            try {
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const data = await res.json();
+                surahSelect.innerHTML = '<option value="">اختر السورة الكريمة...</option>';
+                data.data.forEach(s => {
+                    surahSelect.innerHTML += `<option value="${s.number}">${s.number} - ${s.name} (${s.englishName})</option>`;
+                });
+            } catch(e) {
+                surahSelect.innerHTML = '<option value="">فشل التحميل، يرجى التحقق من اتصالك</option>';
+            }
+        }
+
+        surahSelect.addEventListener('change', async (e) => {
+            const surahNum = e.target.value;
+            if(!surahNum) return;
+            surahTextBox.innerHTML = "جاري فتح السورة الفخمة وقراءة الآيات العثمانية...";
             
-            if (isVibrateEnabled && navigator.vibrate) navigator.vibrate(15);
-            
-            // تأثير بوب بصري خفيف على العداد
-            counterElement.classList.add('pop-effect');
-            setTimeout(() => counterElement.classList.remove('pop-effect'), 100);
+            try {
+                const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.quran-uthmani`);
+                const data = await res.json();
+                
+                surahTextBox.innerHTML = "";
+                data.data.ayahs.forEach(ayah => {
+                    surahTextBox.innerHTML += `<span class="verse-row">${ayah.text} ﴿${ayah.numberInSurah}﴾ </span>`;
+                });
+
+                // ربط مشغل الصوت للشيخ مشاري العفاسي بشكل تلقائي ومتناسق
+                quranAudioPlayer.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
+            } catch(err) {
+                surahTextBox.innerHTML = "حدث خطأ أثناء تحميل السورة. تأكد من الإنترنت.";
+            }
+        });
+
+        // دالة جلب آية ترحيبية وتدبر عشوائية عند الفتح
+        async function loadDailyVerse() {
+            try {
+                const randomVerse = Math.floor(Math.random() * 6236) + 1;
+                const response = await fetch(`https://api.alquran.cloud/v1/ayah/${randomVerse}/ar.quran-uthmani`);
+                const data = await response.json();
+                if (data.code === 200 && data.data) {
+                    document.getElementById('dailyVerseText').innerText = `« ${data.data.text} »`;
+                    document.getElementById('dailyVerseInfo').innerText = `[ سورة ${data.data.surah.name} - آية ${data.data.numberInSurah} ]`;
+                }
+            } catch (err) {
+                document.getElementById('dailyVerseText').innerText = "« إِنَّ مَعَ الْعُسْرِ يُسْرًا »";
+                document.getElementById('dailyVerseInfo').innerText = "[ سورة الشرح - آية 6 ]";
+            }
+        }
+        loadDailyVerse();
+
+        // ربط وحفظ خيارات لوحة الإعدادات في الذاكرة
+        vibrateToggle.checked = isVibrateEnabled;
+        soundToggle.checked = isSoundEnabled;
+        aiToggle.checked = isAIEnabled;
+        themeSelect.value = currentTheme;
+        if(dailyGoal > 0) goalInput.value = dailyGoal;
+
+        vibrateToggle.addEventListener('change', (e) => localStorage.setItem('cfg_vibrate', e.target.checked));
+        soundToggle.addEventListener('change', (e) => localStorage.setItem('cfg_sound', e.target.checked));
+        themeSelect.addEventListener('change', (e) => {
+            const th = e.target.value;
+            localStorage.setItem('cfg_theme', th);
+            document.body.className = th !== 'default' ? 'theme-' + th : '';
+        });
+        goalInput.addEventListener('input', (e) => {
+            dailyGoal = parseInt(e.target.value) || 0;
+            localStorage.setItem('cfg_goal', dailyGoal);
+            updateProgressRing();
+        });
+        resetAllBtn.addEventListener('click', () => {
+            if(confirm("هل أنت متأكد تماماً من تصفير وإعادة تعيين كافة الأرقام الخاصة بك؟")) {
+                localStorage.clear();
+                location.reload();
+            }
         });
     </script>
 </body>
