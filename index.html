@@ -523,6 +523,143 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* ===== شريط البحث الذكي ===== */
+        .quran-search-wrapper {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            position: relative;
+        }
+        .quran-search-input {
+            flex: 1;
+            background: rgba(0,0,0,0.4);
+            color: var(--text-main);
+            border: 1.5px solid rgba(0,214,143,0.25);
+            padding: 11px 14px 11px 36px;
+            border-radius: 14px;
+            outline: none;
+            font-size: 0.95rem;
+            font-family: 'Tajawal', sans-serif;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            direction: rtl;
+        }
+        .quran-search-input::placeholder { color: var(--text-muted); }
+        .quran-search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .search-clear-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            display: none;
+            padding: 2px;
+            line-height: 1;
+        }
+        .search-clear-btn.show { display: block; }
+
+        /* ===== نتائج البحث ===== */
+        .search-results-box {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            max-height: 280px;
+            overflow-y: auto;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            animation: slideDown 0.2s ease;
+        }
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: rgba(0,214,143,0.08); }
+        .search-result-ref {
+            font-size: 0.72rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .search-result-text {
+            font-family: var(--quran-font);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-main);
+        }
+        .search-highlight { color: var(--accent); font-weight: bold; }
+        .search-meta { text-align: center; padding: 14px; color: var(--text-muted); font-size: 0.85rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin-icon { display: inline-block; animation: spin 0.8s linear infinite; }
+
+        /* ===== زر التفسير ===== */
+        .quran-action-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .tafsir-toggle-btn {
+            flex: 1;
+            background: rgba(167,139,250,0.08);
+            border: 1.5px solid rgba(167,139,250,0.3);
+            color: #a78bfa;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .tafsir-toggle-btn.active {
+            background: rgba(167,139,250,0.18);
+            border-color: #a78bfa;
+            box-shadow: 0 0 14px rgba(167,139,250,0.2);
+            color: #c4b5fd;
+        }
+
+        /* ===== نص التفسير داخل الآية ===== */
+        .tafsir-panel {
+            display: none;
+            background: linear-gradient(135deg, rgba(0,214,143,0.04), rgba(0,168,232,0.04));
+            border: 1px solid rgba(0,214,143,0.15);
+            border-radius: 12px;
+            padding: 10px 13px;
+            margin-top: 8px;
+            direction: rtl;
+        }
+        .tafsir-panel-label {
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tafsir-panel-text {
+            font-size: 0.9rem;
+            line-height: 1.85;
+            color: #b0ccc0;
+            font-family: 'Tajawal', sans-serif;
+            text-align: right;
+        }
+        .surah-text-box-wrap.tafsir-on .tafsir-panel { display: block; }
     </style>
 </head>
 <body>
@@ -604,22 +741,40 @@
         <div class="view-section" id="quranView">
             <div class="quran-container">
                 <div class="quran-header-box">
+                    <!-- شريط البحث الذكي الفوري -->
+                    <div class="quran-search-wrapper">
+                        <input type="text" class="quran-search-input" id="quranSearchInput" placeholder="🔍 ابحث في القرآن — اكتب كلمة أو جزء من آية...">
+                        <button class="search-clear-btn" id="searchClearBtn">✕</button>
+                    </div>
+                    <!-- نتائج البحث -->
+                    <div class="search-results-box" id="searchResultsBox"></div>
+
+                    <!-- اختيار السورة + أزرار -->
                     <div class="quran-select-wrapper">
                         <select class="quran-select" id="surahSelect">
-                            <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
+                            <option value="">✨ جاري تحميل قائمة السور...</option>
                         </select>
+                    </div>
+
+                    <!-- شريط الأدوات -->
+                    <div class="quran-action-bar">
+                        <button class="tafsir-toggle-btn" id="tafsirToggleBtn">📖 عرض التفسير</button>
                         <button class="fullscreen-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
                     </div>
+
                     <div class="resume-card" id="resumeBox">
                         <span id="resumeText" style="font-size:0.85rem; color:var(--accent); font-weight:bold;"></span>
                         <button style="background:var(--accent); border:none; padding:6px 12px; border-radius:8px; font-weight:bold; color:#000; cursor:pointer;" id="goResumeBtn">أكمل ↩️</button>
                     </div>
                 </div>
 
+                <div class="surah-text-box-wrap" id="surahTextBoxWrap">
                 <div class="quran-text-box" id="surahTextBox">
-                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات كاملة بالتنظيم العثماني الجديد...
+                    اختر السورة الكريمة من القائمة بالأعلى ليتم عرض الآيات...
+                </div>
                 </div>
 
+                </div><!-- /surah-text-box-wrap -->
                 <div class="audio-player-wrapper">
                     <span style="font-size:0.8rem; color:var(--text-muted);" id="audioStatusText">صوت التلاوة (الشيخ مشاري العفاسي)</span>
                     <audio id="quranAudioPlayer" controls></audio>
@@ -865,24 +1020,150 @@
             }
         }
 
-        surahSelect.addEventListener('change', async (e) => {
-            const surahNum = e.target.value;
-            if(!surahNum) return;
-            surahTextBox.innerHTML = "جاري فتح السورة الفخمة وقراءة الآيات العثمانية...";
-            
+        // =========================================================
+        // ===== التفسير والبحث الذكي =====
+        // =========================================================
+        const surahTextBox    = document.getElementById('surahTextBox');
+        const surahTextBoxWrap= document.getElementById('surahTextBoxWrap');
+        const tafsirToggleBtn = document.getElementById('tafsirToggleBtn');
+        const quranSearchInput= document.getElementById('quranSearchInput');
+        const searchResultsBox= document.getElementById('searchResultsBox');
+        const searchClearBtn  = document.getElementById('searchClearBtn');
+
+        let tafsirEnabled = false;
+        let currentSurahNum = null;
+
+        // ---- دالة عرض السورة المشتركة ----
+        async function loadSurahDisplay(surahNum, jumpToAyah = null) {
+            currentSurahNum = surahNum;
+            surahTextBox.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)"><span class="spin-icon">⏳</span> جاري التحميل...</div>';
+
             try {
-                const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.quran-uthmani`);
-                const data = await res.json();
-                
-                surahTextBox.innerHTML = "";
-                data.data.ayahs.forEach(ayah => {
-                    surahTextBox.innerHTML += `<span class="verse-row">${ayah.text} ﴿${ayah.numberInSurah}﴾ </span>`;
+                let ayahs = [], tafsirMap = {};
+
+                if (tafsirEnabled) {
+                    // جلب النص والتفسير معاً بطلبين متوازيين
+                    const [resQ, resT] = await Promise.all([
+                        fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.quran-uthmani`),
+                        fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.muyassar`)
+                    ]);
+                    const [dQ, dT] = await Promise.all([resQ.json(), resT.json()]);
+                    ayahs = dQ.data.ayahs;
+                    dT.data.ayahs.forEach(a => { tafsirMap[a.numberInSurah] = a.text; });
+                } else {
+                    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.quran-uthmani`);
+                    const d = await res.json();
+                    ayahs = d.data.ayahs;
+                }
+
+                surahTextBox.innerHTML = '';
+                ayahs.forEach(ayah => {
+                    const isTarget = jumpToAyah && ayah.numberInSurah == jumpToAyah;
+                    const tafsirHtml = tafsirEnabled
+                        ? `<div class="tafsir-panel"><div class="tafsir-panel-label">📝 التفسير الميسر</div><div class="tafsir-panel-text">${tafsirMap[ayah.numberInSurah] || ''}</div></div>`
+                        : '';
+                    surahTextBox.innerHTML +=
+                        `<span class="verse-row" id="v-${ayah.numberInSurah}" ${isTarget ? 'style="outline:2px solid var(--primary);border-radius:12px;outline-offset:4px"' : ''}>`
+                        + `${ayah.text} ﴿${ayah.numberInSurah}﴾${tafsirHtml}</span>`;
                 });
 
-                // ربط مشغل الصوت للشيخ مشاري العفاسي بشكل تلقائي ومتناسق
+                // تطبيق class التفسير على الـ wrapper
+                if (tafsirEnabled) surahTextBoxWrap.classList.add('tafsir-on');
+                else surahTextBoxWrap.classList.remove('tafsir-on');
+
                 quranAudioPlayer.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
+
+                if (jumpToAyah) {
+                    setTimeout(() => {
+                        const el = document.getElementById('v-' + jumpToAyah);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 150);
+                }
             } catch(err) {
-                surahTextBox.innerHTML = "حدث خطأ أثناء تحميل السورة. تأكد من الإنترنت.";
+                surahTextBox.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444">❌ فشل التحميل، تأكد من الاتصال</div>';
+            }
+        }
+
+        surahSelect.addEventListener('change', async (e) => {
+            if (!e.target.value) return;
+            searchResultsBox.style.display = 'none';
+            await loadSurahDisplay(e.target.value);
+        });
+
+        // ---- زر التفسير ----
+        tafsirToggleBtn.addEventListener('click', async () => {
+            tafsirEnabled = !tafsirEnabled;
+            tafsirToggleBtn.classList.toggle('active', tafsirEnabled);
+            tafsirToggleBtn.innerHTML = tafsirEnabled ? '📖 إخفاء التفسير' : '📖 عرض التفسير';
+            if (currentSurahNum) await loadSurahDisplay(currentSurahNum);
+        });
+
+        // ---- البحث الفوري الذكي (يبدأ مع الكتابة) ----
+        let searchDebounce = null;
+        const MIN_SEARCH_CHARS = 2;
+
+        quranSearchInput.addEventListener('input', () => {
+            const q = quranSearchInput.value.trim();
+            searchClearBtn.classList.toggle('show', q.length > 0);
+            if (q.length < MIN_SEARCH_CHARS) {
+                searchResultsBox.style.display = 'none';
+                return;
+            }
+            clearTimeout(searchDebounce);
+            searchResultsBox.style.display = 'block';
+            searchResultsBox.innerHTML = '<div class="search-meta"><span class="spin-icon">⏳</span> جاري البحث...</div>';
+            searchDebounce = setTimeout(() => doSearch(q), 420);
+        });
+
+        searchClearBtn.addEventListener('click', () => {
+            quranSearchInput.value = '';
+            searchClearBtn.classList.remove('show');
+            searchResultsBox.style.display = 'none';
+            quranSearchInput.focus();
+        });
+
+        async function doSearch(q) {
+            try {
+                const res = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(q)}/all/ar.quran-uthmani`);
+                const data = await res.json();
+
+                if (!data.data || !data.data.matches || data.data.matches.length === 0) {
+                    searchResultsBox.innerHTML = `<div class="search-meta">🔍 لا توجد نتائج لـ «${q}»</div>`;
+                    return;
+                }
+
+                const matches = data.data.matches.slice(0, 25);
+                const total = data.data.count || matches.length;
+
+                searchResultsBox.innerHTML = matches.map(m => {
+                    // تمييز كلمة البحث في النص
+                    let highlighted = m.text.replace(
+                        new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                        `<span class="search-highlight">${q}</span>`
+                    );
+                    return `<div class="search-result-item" onclick="window._goResult(${m.surah.number},${m.numberInSurah})">
+                        <div class="search-result-ref">📌 سورة ${m.surah.name} — آية ${m.numberInSurah} &nbsp;|&nbsp; ${m.surah.englishName}</div>
+                        <div class="search-result-text">${highlighted}</div>
+                    </div>`;
+                }).join('') + (total > 25 ? `<div class="search-meta" style="color:var(--primary)">✨ تم عرض أول 25 نتيجة من ${total}</div>` : '');
+
+            } catch(err) {
+                searchResultsBox.innerHTML = '<div class="search-meta">❌ فشل الاتصال بالسيرفر</div>';
+            }
+        }
+
+        window._goResult = async (surahNum, ayahNum) => {
+            surahSelect.value = surahNum;
+            searchResultsBox.style.display = 'none';
+            quranSearchInput.value = '';
+            searchClearBtn.classList.remove('show');
+            await loadSurahDisplay(surahNum, ayahNum);
+        };
+
+        // إغلاق النتائج عند الضغط خارجها
+        document.addEventListener('click', (e) => {
+            if (!searchResultsBox.contains(e.target) && e.target !== quranSearchInput) {
+                searchResultsBox.style.display = 'none';
             }
         });
 
@@ -956,18 +1237,12 @@
             goResumeBtn.onclick = async () => {
                 resumeBox.style.display = 'none';
                 surahSelect.value = surahNum;
-                surahTextBox.innerHTML = 'جاري فتح السورة الفخمة وقراءة الآيات العثمانية...';
+                surahTextBox.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)"><span class="spin-icon">⏳</span> جاري التحميل...</div>';
                 try {
-                    const res = await fetch('https://api.alquran.cloud/v1/surah/' + surahNum + '/ar.quran-uthmani');
-                    const data = await res.json();
-                    surahTextBox.innerHTML = '';
-                    data.data.ayahs.forEach(ayah => {
-                        surahTextBox.innerHTML += '<span class="verse-row">' + ayah.text + ' ﴿' + ayah.numberInSurah + '﴾ </span>';
-                    });
-                    quranAudioPlayer.src = 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/' + surahNum + '.mp3';
-                    setTimeout(() => { surahTextBox.scrollTop = scrollPos; }, 150);
+                    await loadSurahDisplay(surahNum);
+                    setTimeout(() => { surahTextBox.scrollTop = scrollPos; }, 300);
                 } catch(err) {
-                    surahTextBox.innerHTML = 'حدث خطأ أثناء تحميل السورة. تأكد من الإنترنت.';
+                    surahTextBox.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444">❌ فشل التحميل</div>';
                 }
             };
         }
