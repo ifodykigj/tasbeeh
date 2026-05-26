@@ -19,27 +19,33 @@
 <link rel="manifest" href="./manifest.json?v=1.1">
     <style>
         :root {
-            --bg-main: #090d16;
-            --bg-card: #131c2e;
-            --bg-input: rgba(27, 38, 59, 0.7);
-            --primary: #10b981;
-            --primary-glow: rgba(16, 185, 129, 0.2);
-            --accent: #f59e0b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --glass-blur: blur(12px);
+            --bg-main: #060b14;
+            --bg-card: #0e1829;
+            --bg-input: rgba(20, 35, 60, 0.75);
+            --primary: #00d68f;
+            --primary-glow: rgba(0, 214, 143, 0.25);
+            --accent: #f6a623;
+            --text-main: #f0f6ff;
+            --text-muted: #7a92b4;
+            --glass-blur: blur(16px);
             --quran-font: 'Amiri', serif;
+            --gradient-hero: linear-gradient(135deg, #00d68f 0%, #00a8e8 100%);
+            --gradient-card: linear-gradient(145deg, rgba(20,40,70,0.9), rgba(10,18,35,0.95));
+            --border-glow: rgba(0, 214, 143, 0.18);
+            --shadow-card: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         body.theme-oled {
             --bg-main: #000000;
-            --bg-card: #0a0a0a;
-            --bg-input: rgba(20, 20, 20, 0.7);
+            --bg-card: #080808;
+            --bg-input: rgba(18, 18, 18, 0.85);
             --primary: #d4af37;
-            --primary-glow: rgba(212, 175, 55, 0.2);
+            --primary-glow: rgba(212, 175, 55, 0.25);
+            --gradient-hero: linear-gradient(135deg, #d4af37 0%, #f5d060 100%);
+            --border-glow: rgba(212,175,55,0.2);
             --accent: #e5e7eb;
             --text-main: #ffffff;
-            --text-muted: #a3a3a3;
+            --text-muted: #888888;
         }
 
         body.theme-lavender {
@@ -73,17 +79,18 @@
         }
 
         .phone-wrapper {
-            background: var(--bg-card);
-            border-radius: 32px;
-            padding: 25px;
+            background: var(--gradient-card);
+            border-radius: 36px;
+            padding: 24px;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 430px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-glow);
             position: relative;
-            min-height: 750px;
+            min-height: 760px;
             display: flex;
             flex-direction: column;
+            backdrop-filter: var(--glass-blur);
         }
 
         .header {
@@ -157,11 +164,12 @@
 
         .nav-tabs {
             display: flex;
-            background: var(--bg-input);
-            border-radius: 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 18px;
             padding: 5px;
-            margin-bottom: 20px;
-            gap: 5px;
+            margin-bottom: 22px;
+            gap: 4px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .tab-btn {
@@ -169,24 +177,28 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 11px 6px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
+            transition: all 0.25s ease;
+            letter-spacing: 0.01em;
         }
 
-        .tab-btn.active { background: var(--primary); color: #000; }
+        .tab-btn:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: var(--gradient-hero); color: #000; box-shadow: 0 4px 14px var(--primary-glow); }
 
         .view-section { display: none; flex-direction: column; flex-grow: 1; }
         .view-section.active { display: flex; }
 
         .profile-card {
-            background: linear-gradient(135deg, var(--bg-input), rgba(0,0,0,0.2));
+            background: linear-gradient(145deg, rgba(20,40,72,0.8), rgba(8,16,32,0.7));
             border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 13px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         }
 
         .input-group { display: flex; gap: 10px; }
@@ -200,7 +212,7 @@
         }
 
         .counter-box {
-            margin: 15px 0;
+            margin: 10px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -209,34 +221,51 @@
 
         .progress-container {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 210px;
+            height: 210px;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,214,143,0.06) 0%, transparent 70%);
         }
 
         .progress-ring-svg {
             position: absolute;
             transform: rotate(-90deg);
-            width: 200px;
-            height: 200px;
+            width: 210px;
+            height: 210px;
+        }
+
+        .progress-ring-bg {
+            stroke: rgba(255,255,255,0.05);
         }
 
         .progress-ring-circle {
-            stroke: var(--primary);
+            stroke: url(#ringGradient);
             stroke-dasharray: 502.65;
             stroke-dashoffset: 502.65;
-            transition: stroke-dashoffset 0.3s ease;
+            transition: stroke-dashoffset 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             stroke-linecap: round;
+            filter: drop-shadow(0 0 6px var(--primary-glow));
         }
 
         .main-number {
-            font-size: 4.2rem;
-            font-weight: 800;
-            font-family: monospace;
+            font-size: 4.5rem;
+            font-weight: 900;
+            font-family: 'Tajawal', monospace;
             z-index: 2;
             user-select: none;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .floating-plus {
@@ -260,27 +289,55 @@
         }
 
         .streak-badge {
-            background: rgba(245, 158, 11, 0.15);
+            background: rgba(246, 166, 35, 0.12);
             color: var(--accent);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-weight: bold;
             display: flex;
             align-items: center;
             gap: 4px;
+            border: 1px solid rgba(246,166,35,0.2);
+            font-size: 0.82rem;
         }
 
-        .dhikr-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 15px var(--primary-glow); }
+        .dhikr-title {
+            font-size: 1.5rem; font-weight: bold;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+            letter-spacing: 0.04em;
+        }
         
         .click-circle {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: linear-gradient(145deg, var(--primary), #047857);
-            margin: 15px auto; display: flex; justify-content: center; align-items: center;
-            font-size: 1.4rem; font-weight: bold; color: white; border: 5px solid var(--bg-card);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.3); cursor: pointer; user-select: none;
+            width: 140px; height: 140px; border-radius: 50%;
+            background: var(--gradient-hero);
+            margin: 14px auto; display: flex; justify-content: center; align-items: center;
+            font-size: 1.3rem; font-weight: bold; color: #000;
+            border: 3px solid rgba(255,255,255,0.15);
+            box-shadow: 0 0 0 8px rgba(0,214,143,0.08), 0 14px 32px rgba(0,0,0,0.45);
+            cursor: pointer; user-select: none;
             -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s ease, box-shadow 0.15s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .click-circle:active { transform: scale(0.94); }
+        .click-circle::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent 60%);
+        }
+        .click-circle:active { transform: scale(0.92); box-shadow: 0 0 0 4px rgba(0,214,143,0.2), 0 8px 20px rgba(0,0,0,0.5); }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 8px rgba(0,214,143,0.08), 0 14px 32px rgba(0,0,0,0.45); }
+            50% { box-shadow: 0 0 0 16px rgba(0,214,143,0.04), 0 14px 32px rgba(0,0,0,0.45); }
+            100% { box-shadow: 0 0 0 8px rgba(0,214,143,0.08), 0 14px 32px rgba(0,0,0,0.45); }
+        }
+        .click-circle { animation: pulseRing 2.5s ease-in-out infinite; }
+        .click-circle:active { animation: none; }
 
         .quran-container { display: flex; flex-direction: column; gap: 12px; text-align: right; }
         
@@ -333,19 +390,23 @@
         }
 
         .leaderboard-box {
-            background: linear-gradient(180deg, var(--bg-input), rgba(0,0,0,0.2));
-            border-radius: 24px; padding: 15px; margin-top: auto; border: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(180deg, rgba(0,214,143,0.05), rgba(0,0,0,0.3));
+            border-radius: 24px; padding: 14px; margin-top: auto;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        .leaderboard-box h3 { font-size: 0.95rem; color: var(--accent); text-align: center; margin-bottom: 10px; }
-        .leader-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
-        .leader-row:last-child { border: none; }
-        .player-info { display: flex; align-items: center; gap: 8px; }
-        .rank-tag { width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; font-weight: bold; background: var(--bg-main); color: var(--text-muted); }
-        .row-0 .rank-tag { background: #f59e0b; color: #000; }
-        .row-1 .rank-tag { background: #94a3b8; color: #000; }
-        .row-2 .rank-tag { background: #b45309; color: #fff; }
-        .player-score { font-weight: 700; color: var(--primary); font-family: monospace; }
-        .current-user-row { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .leaderboard-box h3 { font-size: 0.95rem; color: var(--accent); text-align: center; margin-bottom: 12px; letter-spacing: 0.03em; }
+        .leader-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; border-radius: 10px; margin-bottom: 3px; transition: background 0.2s; }
+        .leader-row:last-child { border: none; margin-bottom: 0; }
+        .leader-row:hover { background: rgba(255,255,255,0.03); }
+        .player-info { display: flex; align-items: center; gap: 10px; }
+        .rank-tag { width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.78rem; font-weight: bold; background: rgba(255,255,255,0.07); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
+        .row-0 .rank-tag { background: linear-gradient(135deg, #f6a623, #f59e0b); color: #000; border: none; box-shadow: 0 2px 8px rgba(246,166,35,0.4); }
+        .row-1 .rank-tag { background: linear-gradient(135deg, #c0c9d4, #94a3b8); color: #000; border: none; }
+        .row-2 .rank-tag { background: linear-gradient(135deg, #cd7f32, #b45309); color: #fff; border: none; }
+        .player-score { font-weight: 800; color: var(--primary); font-family: 'Tajawal', monospace; font-size: 0.95rem; }
+        .current-user-row { background: rgba(0, 214, 143, 0.08) !important; border: 1px solid rgba(0, 214, 143, 0.25) !important; }
+        .row-0 { background: rgba(246, 166, 35, 0.06); }
 
         .visitors-stats-box {
             display: flex; justify-content: space-between; align-items: center;
@@ -370,6 +431,98 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
         .danger-btn { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+        /* ===== ميزة ملء الشاشة ===== */
+        .fullscreen-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            transition: background 0.2s ease;
+        }
+        .fullscreen-btn:hover { background: var(--primary-glow); }
+
+        .quran-fullscreen-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #fffdf5;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .quran-fullscreen-overlay.active { display: flex; }
+
+        .fullscreen-top-bar {
+            background: var(--bg-card);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            flex-shrink: 0;
+        }
+        .fullscreen-top-bar span {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .fullscreen-close-btn {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .fullscreen-close-btn:hover { background: rgba(239,68,68,0.3); }
+
+        .fullscreen-text-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px 20px;
+            font-family: var(--quran-font);
+            font-size: 1.8rem;
+            line-height: 2.5;
+            color: #111;
+            text-align: center;
+        }
+        .fullscreen-text-area .verse-row {
+            color: #111;
+            border-bottom-color: #ccc;
+        }
+
+        /* ===== ميزة حفظ موضع القراءة ===== */
+        .bookmark-saved-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+        .bookmark-saved-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -416,6 +569,13 @@
                 
                 <div class="progress-container" id="containerArea">
                     <svg class="progress-ring-svg">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00d68f"/>
+                                <stop offset="100%" stop-color="#00a8e8"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-ring-bg" stroke-width="5" fill="transparent" r="80" cx="100" cy="100"/>
                         <circle class="progress-ring-circle" id="progressRing" stroke-width="5" fill="transparent" r="80" cx="100" cy="100"/>
                     </svg>
                     <div class="main-number" id="counter">0</div>
@@ -448,6 +608,7 @@
                         <select class="quran-select" id="surahSelect">
                             <option value="">✨ جاري تحميل قائمة السور الفخمة...</option>
                         </select>
+                        <button class="fullscreen-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
                     </div>
                     <div class="resume-card" id="resumeBox">
                         <span id="resumeText" style="font-size:0.85rem; color:var(--accent); font-weight:bold;"></span>
@@ -767,6 +928,199 @@
                 location.reload();
             }
         });
+
+        // =========================================================
+        // ===== ميزة حفظ موضع القراءة =====
+        // =========================================================
+        const resumeBox = document.getElementById('resumeBox');
+        const resumeText = document.getElementById('resumeText');
+        const goResumeBtn = document.getElementById('goResumeBtn');
+        const bookmarkToast = document.getElementById('bookmarkToast');
+
+        function saveReadingPosition() {
+            const surahNum = surahSelect.value;
+            if (!surahNum) return;
+            const surahName = surahSelect.options[surahSelect.selectedIndex].text;
+            const scrollPos = surahTextBox.scrollTop;
+            localStorage.setItem('quran_bookmark', JSON.stringify({ surahNum, surahName, scrollPos }));
+            bookmarkToast.classList.add('show');
+            setTimeout(() => bookmarkToast.classList.remove('show'), 2500);
+        }
+
+        function loadSavedPosition() {
+            const saved = localStorage.getItem('quran_bookmark');
+            if (!saved) return;
+            const { surahNum, surahName, scrollPos } = JSON.parse(saved);
+            resumeText.innerText = '↩️ توقفت عند: ' + surahName;
+            resumeBox.style.display = 'flex';
+            goResumeBtn.onclick = async () => {
+                resumeBox.style.display = 'none';
+                surahSelect.value = surahNum;
+                surahTextBox.innerHTML = 'جاري فتح السورة الفخمة وقراءة الآيات العثمانية...';
+                try {
+                    const res = await fetch('https://api.alquran.cloud/v1/surah/' + surahNum + '/ar.quran-uthmani');
+                    const data = await res.json();
+                    surahTextBox.innerHTML = '';
+                    data.data.ayahs.forEach(ayah => {
+                        surahTextBox.innerHTML += '<span class="verse-row">' + ayah.text + ' ﴿' + ayah.numberInSurah + '﴾ </span>';
+                    });
+                    quranAudioPlayer.src = 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/' + surahNum + '.mp3';
+                    setTimeout(() => { surahTextBox.scrollTop = scrollPos; }, 150);
+                } catch(err) {
+                    surahTextBox.innerHTML = 'حدث خطأ أثناء تحميل السورة. تأكد من الإنترنت.';
+                }
+            };
+        }
+
+        // حفظ الموضع تلقائياً عند التمرير (debounced 3s)
+        let scrollSaveTimer = null;
+        surahTextBox.addEventListener('scroll', () => {
+            if (!surahSelect.value) return;
+            clearTimeout(scrollSaveTimer);
+            scrollSaveTimer = setTimeout(saveReadingPosition, 3000);
+        });
+
+        // عرض بطاقة الاستئناف عند فتح تبويب المصحف
+        document.getElementById('quranTab').addEventListener('click', () => {
+            setTimeout(loadSavedPosition, 200);
+        });
+
+        // =========================================================
+        // ===== ميزة ملء الشاشة =====
+        // =========================================================
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const quranFullscreenOverlay = document.getElementById('quranFullscreenOverlay');
+        const fullscreenCloseBtn = document.getElementById('fullscreenCloseBtn');
+        const fullscreenTextArea = document.getElementById('fullscreenTextArea');
+        const fullscreenSurahTitle = document.getElementById('fullscreenSurahTitle');
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!surahSelect.value || !surahTextBox.querySelector('.verse-row')) {
+                alert('الرجاء اختيار سورة أولاً لعرضها بملء الشاشة.');
+                return;
+            }
+            const surahName = surahSelect.options[surahSelect.selectedIndex].text;
+            fullscreenSurahTitle.innerText = '📖 ' + surahName;
+            fullscreenTextArea.innerHTML = surahTextBox.innerHTML;
+            quranFullscreenOverlay.classList.add('active');
+            if (document.documentElement.requestFullscreen) {
+                quranFullscreenOverlay.requestFullscreen().catch(() => {});
+            }
+        });
+
+        fullscreenCloseBtn.addEventListener('click', () => {
+            quranFullscreenOverlay.classList.remove('active');
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) quranFullscreenOverlay.classList.remove('active');
+        });
+
+        // مزامنة التمرير في وضع ملء الشاشة مع حفظ الموضع
+        fullscreenTextArea.addEventListener('scroll', () => {
+            if (!surahSelect.value) return;
+            clearTimeout(scrollSaveTimer);
+            scrollSaveTimer = setTimeout(saveReadingPosition, 3000);
+        });
+
+        // =========================================================
+        // ===== ميزة نظام التنافس — تهنئة صاحب المركز الأول =====
+        // =========================================================
+        let hasShownRank1 = false;
+        let rank1LastShown = parseInt(localStorage.getItem('rank1_last_shown')) || 0;
+        const RANK1_COOLDOWN_MS = 60 * 60 * 1000; // مرة واحدة كل ساعة
+
+        function checkIfFirstPlace(allUsers) {
+            if (!allUsers.length) return;
+            const topUser = allUsers[0];
+            if (topUser.uid !== myUserId) return;
+            const now = Date.now();
+            if (now - rank1LastShown < RANK1_COOLDOWN_MS) return;
+
+            rank1LastShown = now;
+            localStorage.setItem('rank1_last_shown', now);
+
+            document.getElementById('rank1Name').innerText = '🏆 ' + (myName !== 'مسبح خير' ? myName : '') + ' — ' + myScore.toLocaleString('ar') + ' تسبيحة';
+            document.getElementById('rank1Modal').style.display = 'flex';
+
+            confetti({ particleCount: 220, spread: 90, origin: { y: 0.5 }, colors: ['#f6a623', '#ffdd57', '#fff', '#00d68f'] });
+            setTimeout(() => confetti({ particleCount: 120, spread: 60, origin: { y: 0.3 }, angle: 120 }), 600);
+            setTimeout(() => confetti({ particleCount: 120, spread: 60, origin: { y: 0.3 }, angle: 60 }), 1000);
+        }
+
+        // =========================================================
+        // ===== ميزة تحذير السرعة — 3 ضغطات في الثانية =====
+        // =========================================================
+        const tapTimestamps = [];
+        const SPEED_THRESHOLD = 3;
+        const SPEED_WINDOW_MS = 1000;
+        let speedWarnTimer = null;
+
+        function checkTapSpeed() {
+            const now = Date.now();
+            tapTimestamps.push(now);
+            while (tapTimestamps.length && now - tapTimestamps[0] > SPEED_WINDOW_MS) {
+                tapTimestamps.shift();
+            }
+            if (tapTimestamps.length >= SPEED_THRESHOLD) {
+                showSpeedWarning();
+            }
+        }
+
+        function showSpeedWarning() {
+            const toast = document.getElementById('speedWarningToast');
+            toast.style.display = 'block';
+            clearTimeout(speedWarnTimer);
+            speedWarnTimer = setTimeout(() => { toast.style.display = 'none'; }, 2800);
+        }
+
+        // إضافة فحص السرعة لزر التسبيح الموجود
+        pressBtn.addEventListener('click', checkTapSpeed, true);
+
+        // =========================================================
+        // ===== تحديث فحص المركز الأول عند جلب الصدارة =====
+        // =========================================================
+        // نعيد تعريف listener الصدارة مع إضافة فحص المركز الأول
+        const origLeaderboardRef = ref(database, 'users');
+        onValue(origLeaderboardRef, (snapshot) => {
+            if (snapshot.exists()) {
+                let allUsers = [];
+                snapshot.forEach((child) => {
+                    let u = child.val(); u.uid = child.key; allUsers.push(u);
+                });
+                allUsers.sort((a, b) => b.score - a.score);
+                checkIfFirstPlace(allUsers);
+            }
+        });
     </script>
+
+    <!-- ===== طبقة ملء الشاشة للمصحف ===== -->
+    <div class="quran-fullscreen-overlay" id="quranFullscreenOverlay">
+        <div class="fullscreen-top-bar">
+            <span id="fullscreenSurahTitle">📖 المصحف الكريم</span>
+            <button class="fullscreen-close-btn" id="fullscreenCloseBtn">✕ إغلاق</button>
+        </div>
+        <div class="fullscreen-text-area" id="fullscreenTextArea"></div>
+    </div>
+
+    <!-- ===== رسالة تأكيد حفظ الموضع ===== -->
+    <div class="bookmark-saved-toast" id="bookmarkToast">✅ تم حفظ موضع قراءتك!</div>
+
+    <!-- ===== نافذة التهنئة بالمركز الأول ===== -->
+    <div id="rank1Modal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; backdrop-filter:blur(8px);">
+        <div style="background:linear-gradient(145deg,#0e1829,#0a1220); border:1px solid rgba(246,166,35,0.4); border-radius:28px; padding:35px 30px; text-align:center; max-width:320px; width:90%; box-shadow:0 0 60px rgba(246,166,35,0.2);">
+            <div style="font-size:3.5rem; margin-bottom:10px;">👑</div>
+            <div style="font-size:1.5rem; font-weight:bold; color:#f6a623; margin-bottom:8px;">أنت الأول! مبروك! 🎉</div>
+            <div id="rank1Name" style="font-size:1rem; color:#f0f6ff; margin-bottom:5px;"></div>
+            <div style="font-size:0.85rem; color:#7a92b4; margin-bottom:22px;">تصدرت قائمة الذاكرين حول العالم — استمر في الذكر وأبق تاجك! 🌟</div>
+            <button onclick="document.getElementById('rank1Modal').style.display='none';" style="background:linear-gradient(135deg,#f6a623,#f59e0b); color:#000; font-weight:bold; border:none; padding:12px 30px; border-radius:14px; cursor:pointer; font-size:1rem; width:100%;">جزاك الله خيراً ✨</button>
+        </div>
+    </div>
+
+    <!-- ===== رسالة التحذير من السرعة ===== -->
+    <div id="speedWarningToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#1a0a0a,#2d1010); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:12px 22px; border-radius:20px; font-weight:bold; font-size:0.9rem; z-index:99998; box-shadow:0 4px 20px rgba(239,68,68,0.25); text-align:center; white-space:nowrap;">
+        🌿 تمهّل يا صديقي.. تدبّر في التسبيح
+    </div>
 </body>
 </html>
