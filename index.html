@@ -87,7 +87,8 @@
             box-shadow: var(--shadow-card);
             border: 1px solid var(--border-glow);
             position: relative;
-            min-height: 760px;
+            min-height: 680px;
+            max-height: 96vh;
             display: flex;
             flex-direction: column;
             backdrop-filter: var(--glass-blur);
@@ -189,7 +190,7 @@
         .tab-btn:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.05); }
         .tab-btn.active { background: var(--gradient-hero); color: #000; box-shadow: 0 4px 14px var(--primary-glow); }
 
-        .view-section { display: none; flex-direction: column; flex-grow: 1; }
+        .view-section { display: none; flex-direction: column; flex-grow: 1; min-height: 0; overflow-y: auto; }
         .view-section.active { display: flex; }
 
         .profile-card {
@@ -339,7 +340,7 @@
         .click-circle { animation: pulseRing 2.5s ease-in-out infinite; }
         .click-circle:active { animation: none; }
 
-        .quran-container { display: flex; flex-direction: column; gap: 12px; text-align: right; }
+        .quran-container { display: flex; flex-direction: column; gap: 10px; text-align: right; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 6px; }
         
         .quran-header-box {
             background: var(--bg-input); padding: 12px; border-radius: 16px;
@@ -364,7 +365,7 @@
         .quran-text-box {
             background: #fffdf5;
             color: #1a1a1a; border-radius: 18px; padding: 20px 15px;
-            max-height: 250px; overflow-y: auto; 
+            max-height: 200px; overflow-y: auto; 
             box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
         }
 
@@ -391,7 +392,7 @@
 
         .leaderboard-box {
             background: linear-gradient(180deg, rgba(0,214,143,0.05), rgba(0,0,0,0.3));
-            border-radius: 24px; padding: 14px; margin-top: auto;
+            border-radius: 24px; padding: 14px; margin-top: 12px; flex-shrink: 0; width: 100%;
             border: 1px solid var(--border-glow);
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
@@ -725,6 +726,17 @@
             </div>
 
             <div class="click-circle" id="pressBtn">اضغط</div>
+
+            <div class="leaderboard-box">
+                <h3>🏆 صدارة الذاكرين حول العالم</h3>
+                <div id="leaderboardList">
+                    <div style="text-align:center; color: var(--text-muted); padding: 5px; font-size:0.8rem;">جاري الاتصال بالسيرفر العالمي...</div>
+                </div>
+                <div class="visitors-stats-box">
+                    <span style="color: var(--text-muted);">👥 إجمالي زوار المنصة:</span>
+                    <span id="globalVisitorsCount" style="color: var(--accent); font-weight: bold; font-family: monospace;">1</span>
+                </div>
+            </div>
         </div>
 
         <div class="view-section" id="chartView">
@@ -782,17 +794,6 @@
             </div>
         </div>
 
-        <div class="leaderboard-box">
-            <h3>🏆 صدارة الذاكرين حول العالم</h3>
-            <div id="leaderboardList">
-                <div style="text-align:center; color: var(--text-muted); padding: 5px; font-size:0.8rem;">جاري الاتصال بالسيرفر العالمي...</div>
-            </div>
-            
-            <div class="visitors-stats-box">
-                <span style="color: var(--text-muted);">👥 إجمالي زوار المنصة:</span>
-                <span id="globalVisitorsCount" style="color: var(--accent); font-weight: bold; font-family: monospace;">1</span>
-            </div>
-        </div>
     </div>
 
     <script type="module">
